@@ -32,9 +32,11 @@ public class MapActivity extends AppCompatActivity {
         mapImageView = (ImageView) findViewById(R.id.mapImageView);
         mapScaleGestureDetector = new ScaleGestureDetector(this, new MapScaleListener());
 
-        mapImageView.setScaleType(ImageView.ScaleType.MATRIX);
+        CenterMapImage();
 
+    }
 
+    private void CenterMapImage() {
         //Get image dimensions
         Drawable mapDrawable = mapImageView.getDrawable();
         float imageWidth = mapDrawable.getIntrinsicWidth();
@@ -45,11 +47,11 @@ public class MapActivity extends AppCompatActivity {
         int screenWidth = metrics.widthPixels;
         int screenHeight = metrics.heightPixels;
 
+        //Now center the image to scale to the view's center
         RectF mapDrawableRect = new RectF(0, 0, imageWidth, imageHeight);
         RectF viewImageRect = new RectF(0, 0, screenWidth, screenHeight);
         mapMatrix.setRectToRect(mapDrawableRect, viewImageRect, Matrix.ScaleToFit.CENTER);
         mapImageView.setImageMatrix(mapMatrix);
-
     }
 
     private class MapScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
