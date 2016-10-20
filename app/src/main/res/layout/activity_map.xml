@@ -7,12 +7,12 @@
     android:layout_height="match_parent"
     tools:context="com.nirupama.prasad.mapmysjsu.MapActivity">
 
+
     <ImageView
+        android:id="@+id/mapImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:srcCompat="@drawable/map_only"
         android:scaleType="matrix"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/mapImageView" />
+        app:srcCompat="@drawable/map_only" />
+
 </RelativeLayout>
