@@ -49,10 +49,13 @@ public class MapActivity extends AppCompatActivity implements View.OnTouchListen
         setContentView(R.layout.activity_map);
 
         mapImageView = (ImageView) findViewById(R.id.mapImageView);
+        //Enable/disable touch
         mapImageView.setOnTouchListener(this);
+
+        //Enable or disable scaler
         //mapScaleGestureDetector = new ScaleGestureDetector(this, new MapScaleListener());
 
-        CenterMapImage();
+        //CenterMapImage();
 
     }
 
@@ -90,7 +93,9 @@ public class MapActivity extends AppCompatActivity implements View.OnTouchListen
                     matrix.set(savedMatrix);
                     float dx = event.getX() - start.x;
                     float dy = event.getY() - start.y;
-                    matrix.postTranslate(dx, dy);
+                    if(dx != 0 && dy != 0) {
+                        matrix.postTranslate(dx, dy);
+                    }
                 } else if (mode == ZOOM) {
                     float newDist = spacing(event);
                     if (newDist > 10f) {
