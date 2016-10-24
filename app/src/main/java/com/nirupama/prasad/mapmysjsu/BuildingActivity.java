@@ -6,6 +6,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BuildingActivity extends AppCompatActivity {
@@ -30,10 +31,10 @@ public class BuildingActivity extends AppCompatActivity {
 
         //Retrieve building data
         String[] building_details = getIntent().getStringArrayExtra("BUILDING_DETAILS");
-        int building_image_resource_id = getIntent().getIntExtra("BUILDING_IMAGE_NAME", R.drawable.bbc);
+
 
         //Set up basic info about the building
-        TextView building_info_textview = (TextView) findViewById(R.id.activity_building_textView);
+        TextView building_info_textview = (TextView) findViewById(R.id.bldg_textView);
         String str_building_info_joined_string = "";
         for(String s: building_details) {
             str_building_info_joined_string = str_building_info_joined_string + "\n\n\n\n" + s ;
@@ -41,11 +42,16 @@ public class BuildingActivity extends AppCompatActivity {
         building_info_textview.setText(str_building_info_joined_string);
 
 
-        //Set up building image
-        ImageView buildingImageView = (ImageView) findViewById(R.id.activity_building_imageView);
-        buildingImageView.setImageResource(building_image_resource_id);
+
 
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int building_image_resource_id = getIntent().getIntExtra("BUILDING_IMAGE_NAME", R.drawable.bbc);
+        //Set up building image
+        ImageView buildingImageView = (ImageView) findViewById(R.id.bldg_imageView);
+        buildingImageView.setImageResource(building_image_resource_id);
+    }
 }
