@@ -8,12 +8,17 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -24,7 +29,7 @@ import android.widget.RelativeLayout;
 // Bottom left: 37.331626, -121.882812
 // Bottom right: 37.334603, -121.876557
 
-public class MapActivity extends AppCompatActivity implements View.OnTouchListener{
+public class MapActivity extends AppCompatActivity {
 
     //In order to make the map pinch zoomable
     ImageView mapImageView;
@@ -49,24 +54,105 @@ public class MapActivity extends AppCompatActivity implements View.OnTouchListen
     private float newRot = 0f;
     private float[] lastEvent = null;
 
+    //Data for autocompleting map search bar
+    /* ADDRESSES:
+            "King Library:  Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
+            "Engineering Building:  San José State University Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
+            "Yoshihiro Uchida Hall:  Yoshihiro Uchida Hall, San Jose, CA 95112",
+            "Student Union:  Student Union Building, San Jose, CA 95112",
+            "BBC : Boccardo Business Complex, San Jose, CA 95112",
+            "South   Parking   Garage:  San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"*/
+    private static final String[] LOCATIONS = new String[] {
+        "King Library",
+        "Engineering Building",
+        "Yoshihiro Uchida Hall",
+        "Student Union",
+        "BBC",
+        "South Parking Garage:"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        //Get the image view
         mapImageView = (ImageView) findViewById(R.id.mapImageView);
-        //Enable/disable touch
-       mapImageView.setOnTouchListener(this);
 
+        //Get the search bar
+        AutoCompleteTextView map_search_bar = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
+
+        //Set up map toolbar
+        Toolbar map_toolbar = (Toolbar) findViewById(R.id.map_toolbar);
+        setSupportActionBar(map_toolbar);
+
+        //Set up status bar
+        Window window = this.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.colorToolBar));
+
+        //Set up autocomplete
+        ArrayAdapter<String> searchArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, LOCATIONS);
+        map_search_bar.setAdapter(searchArrayAdapter);
+        map_search_bar.setThreshold(0);
+
+
+        //Enable/disable touch
+        //mapImageView.setOnTouchListener(this);
         //Enable or disable scaler
         //mapScaleGestureDetector = new ScaleGestureDetector(this, new MapScaleListener());
 
-        //CenterMapImage();
+        //Start map at the center
+        CenterMapImage();
 
     }
 
-    public boolean onTouch(View v, MotionEvent event) {
+    private void CenterMapImage() {
+        //Get image dimensions
+        Drawable mapDrawable = mapImageView.getDrawable();
+        float imageWidth = mapDrawable.getIntrinsicWidth();
+        float imageHeight = mapDrawable.getIntrinsicHeight();
+
+        //Get Screen dimensions
+        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+        int screenWidth = metrics.widthPixels;
+        int screenHeight = metrics.heightPixels;
+
+        //Now center the image to scale to the view's center
+        RectF mapDrawableRect = new RectF(0, 0, imageWidth, imageHeight);
+        RectF viewImageRect = new RectF(0, 0, screenWidth, screenHeight);
+        mapMatrix.setRectToRect(mapDrawableRect, viewImageRect, Matrix.ScaleToFit.CENTER);
+        mapImageView.setImageMatrix(mapMatrix);
+    }
+
+
+    /*
+    //Map scaler methods
+    private class MapScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+
+            float newScaleFactor = detector.getScaleFactor();
+            mapInitScale = newScaleFactor * mapInitScale;
+            mapInitScale = Math.max(1f, Math.min(mapInitScale, 5f));
+            Log.d("MapActivity", "MapScaleListener, initscale = " + mapInitScale + " new scale = " + newScaleFactor);
+            mapMatrix.setScale(mapInitScale, mapInitScale);
+
+            mapImageView.setImageMatrix(mapMatrix);
+            return true;
+        }
+    }
+
+    //@Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mapScaleGestureDetector.onTouchEvent(event);
+        return true;
+    }
+
+
+    //Zoom and pinch events
+    public boolean onTouchPinchZoom(View v, MotionEvent event) {
         // handle touch events here
         ImageView view = (ImageView) v;
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -147,44 +233,5 @@ public class MapActivity extends AppCompatActivity implements View.OnTouchListen
         double delta_y = (event.getY(0) - event.getY(1));
         double radians = Math.atan2(delta_y, delta_x);
         return (float) Math.toDegrees(radians);
-    }
-
-    private void CenterMapImage() {
-        //Get image dimensions
-        Drawable mapDrawable = mapImageView.getDrawable();
-        float imageWidth = mapDrawable.getIntrinsicWidth();
-        float imageHeight = mapDrawable.getIntrinsicHeight();
-
-        //Get Screen dimensions
-        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-        int screenWidth = metrics.widthPixels;
-        int screenHeight = metrics.heightPixels;
-
-        //Now center the image to scale to the view's center
-        RectF mapDrawableRect = new RectF(0, 0, imageWidth, imageHeight);
-        RectF viewImageRect = new RectF(0, 0, screenWidth, screenHeight);
-        mapMatrix.setRectToRect(mapDrawableRect, viewImageRect, Matrix.ScaleToFit.CENTER);
-        mapImageView.setImageMatrix(mapMatrix);
-    }
-
-   /* private class MapScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-
-            float newScaleFactor = detector.getScaleFactor();
-            mapInitScale = newScaleFactor * mapInitScale;
-            mapInitScale = Math.max(1f, Math.min(mapInitScale, 5f));
-            Log.d("MapActivity", "MapScaleListener, initscale = " + mapInitScale + " new scale = " + newScaleFactor);
-            mapMatrix.setScale(mapInitScale, mapInitScale);
-
-            mapImageView.setImageMatrix(mapMatrix);
-            return true;
-        }
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mapScaleGestureDetector.onTouchEvent(event);
-        return true;
     }*/
 }
