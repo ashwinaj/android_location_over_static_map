@@ -1,6 +1,10 @@
 package com.nirupama.prasad.mapmysjsu;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -34,7 +38,7 @@ import static java.security.AccessController.getContext;
 // Bottom left: 37.331626, -121.882812
 // Bottom right: 37.334603, -121.876557
 
-public class MapActivity extends AppCompatActivity  {
+public class MapActivity extends AppCompatActivity {
 
     //In order to make the map pinch zoomable
     ImageView mapImageView;
@@ -162,6 +166,11 @@ public class MapActivity extends AppCompatActivity  {
         //Start map at the center
         CenterMapImage();
 
+        RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
+        MarkerView marker = new MarkerView(this);
+        map_layout.addView(marker);
+
+
     }
 
     private View.OnTouchListener map_touch_listener = new View.OnTouchListener() {
@@ -216,7 +225,21 @@ public class MapActivity extends AppCompatActivity  {
         RectF viewImageRect = new RectF(0, 0, screenWidth, screenHeight);
         mapMatrix.setRectToRect(mapDrawableRect, viewImageRect, Matrix.ScaleToFit.CENTER);
         mapImageView.setImageMatrix(mapMatrix);
+
+
+
     }
 
 
+    private class MarkerView extends View {
+
+        public MarkerView(Context context){
+            super(context);
+        }
+        @Override
+        protected void onDraw(Canvas canvas) {
+            Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.pin);
+            canvas.drawBitmap(marker, 860, 600, null);
+        }
+    };
 }
