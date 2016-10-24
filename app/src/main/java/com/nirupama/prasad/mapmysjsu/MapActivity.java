@@ -58,16 +58,29 @@ public class MapActivity extends AppCompatActivity  {
     private float newRot = 0f;
     private float[] lastEvent = null;
 
-    //Data for autocompleting map search bar
     public static final int TOTAL_BUILDING_COUNT = 6;
-    /* ADDRESSES:
-            "King Library:  Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
-            "Engineering Building:  San José State University Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
-            "Yoshihiro Uchida Hall:  Yoshihiro Uchida Hall, San Jose, CA 95112",
-            "Student Union:  Student Union Building, San Jose, CA 95112",
-            "BBC : Boccardo Business Complex, San Jose, CA 95112",
-            "South   Parking   Garage:  San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"*/
-    private static final String[] LOCATIONS = new String[] {
+
+
+    public static final String[] GEOCOORDINATES = new String[]{
+        "37.337359, -121.881909",
+        "37.335716, -121.885213",
+        "37.333492, -121.883756",
+        "37.336361, -121.881282",
+        "37.336530, -121.878717",
+        "37.333385, -121.880264"
+    };
+
+
+    public static final String[] ADDRESSES = new String[] {
+        "San José State University, Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
+        "Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
+        "Yoshihiro Uchida Hall, San Jose, CA 95112",
+        "Student Union Building, San Jose, CA 95112",
+        "Boccardo Business Complex, San Jose, CA 95112",
+        "San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"
+    };
+
+    public static final String[] LOCATIONS = new String[] {
         "Engineering Building",
         "King Library",
         "Yoshihiro Uchida Hall",
@@ -77,24 +90,24 @@ public class MapActivity extends AppCompatActivity  {
     };
 
     public static final float[][] coordinates = new float[][] {
-            //           TLX  TRY  TRX  BRY
-            new float[] {749, 529, 960, 720}, //ENGR BUILDING
-            new float[] {193, 493, 312, 690}, //KING LIBRARY
-            new float[] {107, 974, 319, 1146}, //YOSHIHIRO HALL
-            new float[] {745, 758, 1046, 881}, //STUDENT UNION
-            new float[] {1160, 880, 1333, 990}, //BBC
-            new float[] {458, 1332, 708, 1504} //SOUTH PARKING
+        //           TLX  TRY  TRX  BRY
+        new float[] {749, 529, 960, 720}, //ENGR BUILDING
+        new float[] {193, 493, 312, 690}, //KING LIBRARY
+        new float[] {107, 974, 319, 1146}, //YOSHIHIRO HALL
+        new float[] {745, 758, 1046, 881}, //STUDENT UNION
+        new float[] {1160, 880, 1333, 990}, //BBC
+        new float[] {458, 1332, 708, 1504} //SOUTH PARKING
     };
 
     public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
 
 
     //Setup all activity in constructor
-    MapActivity(){
-        int building_count = 0;
-        for (String s: LOCATIONS){
-            map_buildings[building_count] = new Building(s, coordinates[building_count]);
-            building_count++;
+    MapActivity()
+    {
+        for (int i = 0; i < TOTAL_BUILDING_COUNT; i++){
+            map_buildings[i] = new Building( LOCATIONS[i], coordinates[i]);
+            map_buildings[i].setBuilding_address(ADDRESSES[i]);
         }
     }
 
