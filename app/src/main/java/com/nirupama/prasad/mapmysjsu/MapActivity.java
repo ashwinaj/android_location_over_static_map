@@ -50,7 +50,7 @@ public class MapActivity extends AppCompatActivity implements View.OnTouchListen
 
         mapImageView = (ImageView) findViewById(R.id.mapImageView);
         //Enable/disable touch
-        mapImageView.setOnTouchListener(this);
+       mapImageView.setOnTouchListener(this);
 
         //Enable or disable scaler
         //mapScaleGestureDetector = new ScaleGestureDetector(this, new MapScaleListener());
