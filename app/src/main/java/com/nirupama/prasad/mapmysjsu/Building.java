@@ -6,6 +6,8 @@ public class Building {
     public String building_name;
     public String building_address;
     public String building_coordinates;
+    public String building_image_name;
+    public int building_image_resource_name;
 
 
     //Building pixel data set
@@ -58,5 +60,22 @@ public class Building {
 
     public void setBuilding_coordinates(String building_coordinates) {
         this.building_coordinates = building_coordinates;
+    }
+
+
+    public String getBuilding_image_name() {
+        return building_image_name;
+    }
+
+    public void setBuilding_image_name(String building_image_name) {
+        this.building_image_name = building_image_name;
+    }
+
+    public int getBuilding_image_resource_name() {
+        return building_image_resource_name;
+    }
+
+    public void setBuilding_image_resource_name(int building_image_resource_name) {
+        this.building_image_resource_name = building_image_resource_name;
     }
 }

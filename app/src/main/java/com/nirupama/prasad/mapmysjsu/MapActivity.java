@@ -61,6 +61,14 @@ public class MapActivity extends AppCompatActivity  {
 
     public static final int TOTAL_BUILDING_COUNT = 6;
 
+    private static final int[] BUILDING_RESOURCE_NAMES = new int[] {
+            R.drawable.sjsu_engineering_web,
+            R.drawable.king,
+            R.drawable.yoshihiro,
+            R.drawable.student_union,
+            R.drawable.bbc,
+            R.drawable.south_garage
+    };
 
     public static final String[] GEOCOORDINATES = new String[]{
         "37.337359, -121.881909",
@@ -110,6 +118,7 @@ public class MapActivity extends AppCompatActivity  {
             map_buildings[i] = new Building( LOCATIONS[i], coordinates[i]);
             map_buildings[i].setBuilding_address(ADDRESSES[i]);
             map_buildings[i].setBuilding_coordinates(GEOCOORDINATES[i]);
+            map_buildings[i].setBuilding_image_resource_name(BUILDING_RESOURCE_NAMES[i]);
         }
     }
 
@@ -163,8 +172,8 @@ public class MapActivity extends AppCompatActivity  {
                 float screenY = event.getY();
                 float viewX = screenX - v.getLeft();
                 float viewY = screenY - v.getTop();
-                Log.d("MapActivity",  "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" +screenY);
 
+                Log.d("MapActivity",  "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" +screenY);
                 ProcessTouchCoordinate(v, viewX, viewY);
                 return true;
             }
@@ -183,6 +192,7 @@ public class MapActivity extends AppCompatActivity  {
                         map_buildings[i].building_address,
                         map_buildings[i].building_coordinates
                 });
+                bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getBuilding_image_resource_name());
                 startActivity(bldgIntent);
             }
         }

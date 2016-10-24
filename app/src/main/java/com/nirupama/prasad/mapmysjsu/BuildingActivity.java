@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class BuildingActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +30,7 @@ public class BuildingActivity extends AppCompatActivity {
 
         //Retrieve building data
         String[] building_details = getIntent().getStringArrayExtra("BUILDING_DETAILS");
-
+        int building_image_resource_id = getIntent().getIntExtra("BUILDING_IMAGE_NAME", R.drawable.bbc);
 
         //Set up basic info about the building
         TextView building_info_textview = (TextView) findViewById(R.id.activity_building_textView);
@@ -38,6 +40,10 @@ public class BuildingActivity extends AppCompatActivity {
         }
         building_info_textview.setText(str_building_info_joined_string);
 
+
+        //Set up building image
+        ImageView buildingImageView = (ImageView) findViewById(R.id.activity_building_imageView);
+        buildingImageView.setImageResource(building_image_resource_id);
 
     }
 
