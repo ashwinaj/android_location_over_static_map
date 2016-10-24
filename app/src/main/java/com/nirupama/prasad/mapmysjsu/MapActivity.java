@@ -21,15 +21,19 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import static java.security.AccessController.getContext;
 
 
-//Coordinates:
+
+//Geographical coordinates of map:
 // Top left: 37°20'08.9"N 121°53'09.4"W
 // Top right: 37.335798, -121.885934
 // Bottom left: 37.331626, -121.882812
 // Bottom right: 37.334603, -121.876557
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends AppCompatActivity  {
 
     //In order to make the map pinch zoomable
     ImageView mapImageView;
@@ -55,6 +59,7 @@ public class MapActivity extends AppCompatActivity {
     private float[] lastEvent = null;
 
     //Data for autocompleting map search bar
+    public static final int TOTAL_BUILDING_COUNT = 6;
     /* ADDRESSES:
             "King Library:  Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
             "Engineering Building:  San José State University Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
@@ -63,16 +68,39 @@ public class MapActivity extends AppCompatActivity {
             "BBC : Boccardo Business Complex, San Jose, CA 95112",
             "South   Parking   Garage:  San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"*/
     private static final String[] LOCATIONS = new String[] {
-        "King Library",
         "Engineering Building",
+        "King Library",
         "Yoshihiro Uchida Hall",
         "Student Union",
         "BBC",
-        "South Parking Garage:"
+        "South Parking Garage"
     };
 
+    public static final float[][] coordinates = new float[][] {
+            //           TLX  TRY  TRX  BRY
+            new float[] {749, 529, 960, 720}, //ENGR BUILDING
+            new float[] {193, 493, 312, 690}, //KING LIBRARY
+            new float[] {107, 974, 319, 1146}, //YOSHIHIRO HALL
+            new float[] {745, 758, 1046, 881}, //STUDENT UNION
+            new float[] {1160, 880, 1333, 990}, //BBC
+            new float[] {458, 1332, 708, 1504} //SOUTH PARKING
+    };
+
+    public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
+
+
+    //Setup all activity in constructor
+    MapActivity(){
+        int building_count = 0;
+        for (String s: LOCATIONS){
+            map_buildings[building_count] = new Building(s, coordinates[building_count]);
+            building_count++;
+        }
+    }
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
@@ -98,6 +126,10 @@ public class MapActivity extends AppCompatActivity {
         map_search_bar.setThreshold(0);
 
 
+        //Set up touch
+        mapImageView.setOnTouchListener(map_touch_listener);
+
+
         //Enable/disable touch
         //mapImageView.setOnTouchListener(this);
         //Enable or disable scaler
@@ -105,6 +137,34 @@ public class MapActivity extends AppCompatActivity {
 
         //Start map at the center
         CenterMapImage();
+
+    }
+
+    private View.OnTouchListener map_touch_listener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                float screenX = event.getX();
+                float screenY = event.getY();
+                float viewX = screenX - v.getLeft();
+                float viewY = screenY - v.getTop();
+                Log.d("MapActivity",  "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" +screenY);
+
+                ProcessTouchCoordinate(v, viewX, viewY);
+                return true;
+            }
+            return false;
+        }
+    };
+
+    private void ProcessTouchCoordinate(View v, float x, float y){
+
+        for(int i = 0; i < TOTAL_BUILDING_COUNT; i++){
+            if(map_buildings[i].IsWithinPixelBounds(x,y)) {
+                Toast.makeText(v.getContext(), map_buildings[i].building_name, Toast.LENGTH_SHORT).show();
+            }
+        }
+
 
     }
 
@@ -127,111 +187,4 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-    /*
-    //Map scaler methods
-    private class MapScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-
-            float newScaleFactor = detector.getScaleFactor();
-            mapInitScale = newScaleFactor * mapInitScale;
-            mapInitScale = Math.max(1f, Math.min(mapInitScale, 5f));
-            Log.d("MapActivity", "MapScaleListener, initscale = " + mapInitScale + " new scale = " + newScaleFactor);
-            mapMatrix.setScale(mapInitScale, mapInitScale);
-
-            mapImageView.setImageMatrix(mapMatrix);
-            return true;
-        }
-    }
-
-    //@Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mapScaleGestureDetector.onTouchEvent(event);
-        return true;
-    }
-
-
-    //Zoom and pinch events
-    public boolean onTouchPinchZoom(View v, MotionEvent event) {
-        // handle touch events here
-        ImageView view = (ImageView) v;
-        switch (event.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_DOWN:
-                savedMatrix.set(matrix);
-                start.set(event.getX(), event.getY());
-                mode = DRAG;
-                lastEvent = null;
-                break;
-            case MotionEvent.ACTION_POINTER_DOWN:
-                oldDist = spacing(event);
-                if (oldDist > 10f) {
-                    savedMatrix.set(matrix);
-                    midPoint(mid, event);
-                    mode = ZOOM;
-                }
-                lastEvent = new float[4];
-                lastEvent[0] = event.getX(0);
-                lastEvent[1] = event.getX(1);
-                lastEvent[2] = event.getY(0);
-                lastEvent[3] = event.getY(1);
-                d = rotation(event);
-                break;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_POINTER_UP:
-                mode = NONE;
-                lastEvent = null;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (mode == DRAG) {
-                    matrix.set(savedMatrix);
-                    float dx = event.getX() - start.x;
-                    float dy = event.getY() - start.y;
-                    if(dx != 0 && dy != 0) {
-                        matrix.postTranslate(dx, dy);
-                    }
-                } else if (mode == ZOOM) {
-                    float newDist = spacing(event);
-                    if (newDist > 10f) {
-                        matrix.set(savedMatrix);
-                        float scale = (newDist / oldDist);
-                        matrix.postScale(scale, scale, mid.x, mid.y);
-                    }
-                    if (lastEvent != null && event.getPointerCount() == 3) {
-                        newRot = rotation(event);
-                        float r = newRot - d;
-                        float[] values = new float[9];
-                        matrix.getValues(values);
-                        float tx = values[2];
-                        float ty = values[5];
-                        float sx = values[0];
-                        float xc = (view.getWidth() / 2) * sx;
-                        float yc = (view.getHeight() / 2) * sx;
-                        matrix.postRotate(r, tx + xc, ty + yc);
-                    }
-                }
-                break;
-        }
-
-        view.setImageMatrix(matrix);
-        return true;
-    }
-
-    private float spacing(MotionEvent event) {
-        float x = event.getX(0) - event.getX(1);
-        float y = event.getY(0) - event.getY(1);
-        return (float) Math.sqrt(x * x + y * y);
-    }
-
-    private void midPoint(PointF point, MotionEvent event) {
-        float x = event.getX(0) + event.getX(1);
-        float y = event.getY(0) + event.getY(1);
-        point.set(x / 2, y / 2);
-    }
-
-    private float rotation(MotionEvent event) {
-        double delta_x = (event.getX(0) - event.getX(1));
-        double delta_y = (event.getY(0) - event.getY(1));
-        double radians = Math.atan2(delta_y, delta_x);
-        return (float) Math.toDegrees(radians);
-    }*/
 }
