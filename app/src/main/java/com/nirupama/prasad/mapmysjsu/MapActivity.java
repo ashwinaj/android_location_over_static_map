@@ -1,5 +1,6 @@
 package com.nirupama.prasad.mapmysjsu;
 
+import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -72,7 +73,7 @@ public class MapActivity extends AppCompatActivity  {
 
 
     public static final String[] ADDRESSES = new String[] {
-        "San José State University, Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
+        "Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
         "Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
         "Yoshihiro Uchida Hall, San Jose, CA 95112",
         "Student Union Building, San Jose, CA 95112",
@@ -108,6 +109,7 @@ public class MapActivity extends AppCompatActivity  {
         for (int i = 0; i < TOTAL_BUILDING_COUNT; i++){
             map_buildings[i] = new Building( LOCATIONS[i], coordinates[i]);
             map_buildings[i].setBuilding_address(ADDRESSES[i]);
+            map_buildings[i].setBuilding_coordinates(GEOCOORDINATES[i]);
         }
     }
 
@@ -174,7 +176,14 @@ public class MapActivity extends AppCompatActivity  {
 
         for(int i = 0; i < TOTAL_BUILDING_COUNT; i++){
             if(map_buildings[i].IsWithinPixelBounds(x,y)) {
-                Toast.makeText(v.getContext(), map_buildings[i].building_name, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(v.getContext(), map_buildings[i].building_name, Toast.LENGTH_SHORT).show();
+                Intent bldgIntent = new Intent(this, BuildingActivity.class);
+                bldgIntent.putExtra("BUILDING_DETAILS", new String[] {
+                        map_buildings[i].building_name,
+                        map_buildings[i].building_address,
+                        map_buildings[i].building_coordinates
+                });
+                startActivity(bldgIntent);
             }
         }
 

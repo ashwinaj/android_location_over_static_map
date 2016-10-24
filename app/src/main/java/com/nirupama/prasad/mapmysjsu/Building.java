@@ -5,6 +5,7 @@ public class Building {
 
     public String building_name;
     public String building_address;
+    public String building_coordinates;
 
 
     //Building pixel data set
@@ -24,6 +25,17 @@ public class Building {
         pixel_coordinates[BOTTOM_RIGHT_Y] = coordinates[BOTTOM_RIGHT_Y];
 
     }
+    //Calculate if within bounds
+    public boolean IsWithinPixelBounds(float x, float y){
+
+        if (x > pixel_coordinates[TOP_LEFT_X] &&  x < pixel_coordinates[TOP_RIGHT_X]) {
+            if(y > pixel_coordinates[TOP_RIGHT_Y] && y < pixel_coordinates[BOTTOM_RIGHT_Y]){
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public String getBuilding_address() {
         return building_address;
@@ -40,19 +52,11 @@ public class Building {
     public void setPixel_coordinates(float[] pixel_coordinates) {
         this.pixel_coordinates = pixel_coordinates;
     }
-
-    //Calculate if within bounds
-    public boolean IsWithinPixelBounds(float x, float y){
-
-        if (x > pixel_coordinates[TOP_LEFT_X] &&  x < pixel_coordinates[TOP_RIGHT_X]) {
-            if(y > pixel_coordinates[TOP_RIGHT_Y] && y < pixel_coordinates[BOTTOM_RIGHT_Y]){
-                return true;
-            }
-        }
-
-        return false;
+    public String getBuilding_coordinates() {
+        return building_coordinates;
     }
 
-
-
+    public void setBuilding_coordinates(String building_coordinates) {
+        this.building_coordinates = building_coordinates;
+    }
 }
