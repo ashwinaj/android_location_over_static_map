@@ -17,6 +17,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+
+//Coordinates:
+// Top left: 37°20'08.9"N 121°53'09.4"W
+// Top right: 37.335798, -121.885934
+// Bottom left: 37.331626, -121.882812
+// Bottom right: 37.334603, -121.876557
+
 public class MapActivity extends AppCompatActivity implements View.OnTouchListener{
 
     //In order to make the map pinch zoomable
