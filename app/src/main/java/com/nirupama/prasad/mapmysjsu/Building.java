@@ -17,21 +17,22 @@ public class Building {
     public static final int BOTTOM_RIGHT_Y = 3;
     public float[] pixel_coordinates;
 
-    Building(String name, float[] coordinates){
+    Building(String name, float[] coordinates) {
 
         building_name = name;
         pixel_coordinates = new float[4];
         pixel_coordinates[TOP_LEFT_X] = coordinates[TOP_LEFT_X];
         pixel_coordinates[TOP_RIGHT_Y] = coordinates[TOP_RIGHT_Y];
-        pixel_coordinates[TOP_RIGHT_X] = coordinates[TOP_RIGHT_X] ;
+        pixel_coordinates[TOP_RIGHT_X] = coordinates[TOP_RIGHT_X];
         pixel_coordinates[BOTTOM_RIGHT_Y] = coordinates[BOTTOM_RIGHT_Y];
 
     }
-    //Calculate if within bounds
-    public boolean IsWithinPixelBounds(float x, float y){
 
-        if (x > pixel_coordinates[TOP_LEFT_X] &&  x < pixel_coordinates[TOP_RIGHT_X]) {
-            if(y > pixel_coordinates[TOP_RIGHT_Y] && y < pixel_coordinates[BOTTOM_RIGHT_Y]){
+    //Calculate if within bounds
+    public boolean IsWithinPixelBounds(float x, float y) {
+
+        if (x > pixel_coordinates[TOP_LEFT_X] && x < pixel_coordinates[TOP_RIGHT_X]) {
+            if (y > pixel_coordinates[TOP_RIGHT_Y] && y < pixel_coordinates[BOTTOM_RIGHT_Y]) {
                 return true;
             }
         }
@@ -54,6 +55,7 @@ public class Building {
     public void setPixel_coordinates(float[] pixel_coordinates) {
         this.pixel_coordinates = pixel_coordinates;
     }
+
     public String getBuilding_coordinates() {
         return building_coordinates;
     }

@@ -6,11 +6,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class BuildingActivity extends AppCompatActivity {
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,17 +30,13 @@ public class BuildingActivity extends AppCompatActivity {
         //Retrieve building data
         String[] building_details = getIntent().getStringArrayExtra("BUILDING_DETAILS");
 
-
         //Set up basic info about the building
         TextView building_info_textview = (TextView) findViewById(R.id.bldg_textView);
         String str_building_info_joined_string = "";
-        for(String s: building_details) {
-            str_building_info_joined_string = str_building_info_joined_string + "\n\n\n\n" + s ;
+        for (String s : building_details) {
+            str_building_info_joined_string = str_building_info_joined_string + "\n\n\n\n" + s;
         }
         building_info_textview.setText(str_building_info_joined_string);
-
-
-
 
     }
 

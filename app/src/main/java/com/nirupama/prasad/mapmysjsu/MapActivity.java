@@ -7,15 +7,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -26,11 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
-
-import static java.security.AccessController.getContext;
-
-
 
 //Geographical coordinates of map:
 // Top left: 37°20'08.9"N 121°53'09.4"W
@@ -63,9 +56,14 @@ public class MapActivity extends AppCompatActivity {
     private float newRot = 0f;
     private float[] lastEvent = null;
 
+    //Geolocation statics
+    public final static double OneEightyDeg = 180.0d;
+    public static double ImageSizeW, ImageSizeH;
+
+
     public static final int TOTAL_BUILDING_COUNT = 6;
 
-    private static final int[] BUILDING_RESOURCE_NAMES = new int[] {
+    private static final int[] BUILDING_RESOURCE_NAMES = new int[]{
             R.drawable.sjsu_engineering_web,
             R.drawable.king,
             R.drawable.yoshihiro,
@@ -75,60 +73,57 @@ public class MapActivity extends AppCompatActivity {
     };
 
     public static final String[] GEOCOORDINATES = new String[]{
-        "37.337359, -121.881909",
-        "37.335716, -121.885213",
-        "37.333492, -121.883756",
-        "37.336361, -121.881282",
-        "37.336530, -121.878717",
-        "37.333385, -121.880264"
+            "37.337359, -121.881909",
+            "37.335716, -121.885213",
+            "37.333492, -121.883756",
+            "37.336361, -121.881282",
+            "37.336530, -121.878717",
+            "37.333385, -121.880264"
     };
 
 
-    public static final String[] ADDRESSES = new String[] {
-        "Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
-        "Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
-        "Yoshihiro Uchida Hall, San Jose, CA 95112",
-        "Student Union Building, San Jose, CA 95112",
-        "Boccardo Business Complex, San Jose, CA 95112",
-        "San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"
+    public static final String[] ADDRESSES = new String[]{
+            "Charles W. Davidson College of Engineering, 1 Washington Square, San Jose, CA 95112",
+            "Dr. Martin Luther King, Jr. Library, 150 East San Fernando Street, San Jose, CA 95112",
+            "Yoshihiro Uchida Hall, San Jose, CA 95112",
+            "Student Union Building, San Jose, CA 95112",
+            "Boccardo Business Complex, San Jose, CA 95112",
+            "San Jose State University South Garage, 330 South 7th Street, San Jose, CA 95112"
     };
 
-    public static final String[] LOCATIONS = new String[] {
-        "Engineering Building",
-        "King Library",
-        "Yoshihiro Uchida Hall",
-        "Student Union",
-        "BBC",
-        "South Parking Garage"
+    public static final String[] LOCATIONS = new String[]{
+            "Engineering Building",
+            "King Library",
+            "Yoshihiro Uchida Hall",
+            "Student Union",
+            "BBC",
+            "South Parking Garage"
     };
 
-    public static final float[][] coordinates = new float[][] {
-        //           TLX  TRY  TRX  BRY
-        new float[] {749, 529, 960, 720}, //ENGR BUILDING
-        new float[] {193, 493, 312, 690}, //KING LIBRARY
-        new float[] {107, 974, 319, 1146}, //YOSHIHIRO HALL
-        new float[] {745, 758, 1046, 881}, //STUDENT UNION
-        new float[] {1160, 880, 1333, 990}, //BBC
-        new float[] {458, 1332, 708, 1504} //SOUTH PARKING
+    public static final float[][] coordinates = new float[][]{
+            //           TLX  TRY  TRX  BRY
+            new float[]{749, 529, 960, 720}, //ENGR BUILDING
+            new float[]{193, 493, 312, 690}, //KING LIBRARY
+            new float[]{107, 974, 319, 1146}, //YOSHIHIRO HALL
+            new float[]{745, 758, 1046, 881}, //STUDENT UNION
+            new float[]{1160, 880, 1333, 990}, //BBC
+            new float[]{458, 1332, 708, 1504} //SOUTH PARKING
     };
 
     public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
 
-
     //Setup all activity in constructor
-    MapActivity()
-    {
-        for (int i = 0; i < TOTAL_BUILDING_COUNT; i++){
-            map_buildings[i] = new Building( LOCATIONS[i], coordinates[i]);
+    MapActivity() {
+        for (int i = 0; i < TOTAL_BUILDING_COUNT; i++) {
+            map_buildings[i] = new Building(LOCATIONS[i], coordinates[i]);
             map_buildings[i].setBuilding_address(ADDRESSES[i]);
             map_buildings[i].setBuilding_coordinates(GEOCOORDINATES[i]);
             map_buildings[i].setBuilding_image_resource_name(BUILDING_RESOURCE_NAMES[i]);
         }
     }
 
-
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
@@ -153,10 +148,8 @@ public class MapActivity extends AppCompatActivity {
         map_search_bar.setAdapter(searchArrayAdapter);
         map_search_bar.setThreshold(0);
 
-
         //Set up touch
         mapImageView.setOnTouchListener(map_touch_listener);
-
 
         //Enable/disable touch
         //mapImageView.setOnTouchListener(this);
@@ -165,12 +158,6 @@ public class MapActivity extends AppCompatActivity {
 
         //Start map at the center
         CenterMapImage();
-
-        RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
-        MarkerView marker = new MarkerView(this);
-        map_layout.addView(marker);
-
-
     }
 
     private View.OnTouchListener map_touch_listener = new View.OnTouchListener() {
@@ -182,7 +169,12 @@ public class MapActivity extends AppCompatActivity {
                 float viewX = screenX - v.getLeft();
                 float viewY = screenY - v.getTop();
 
-                Log.d("MapActivity",  "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" +screenY);
+                Log.d("MapActivity", "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" + screenY);
+
+                //NIMMA: try plotting
+                //plotPin(v.getContext(), viewX, screenY);
+
+
                 ProcessTouchCoordinate(v, viewX, viewY);
                 return true;
             }
@@ -190,23 +182,80 @@ public class MapActivity extends AppCompatActivity {
         }
     };
 
-    private void ProcessTouchCoordinate(View v, float x, float y){
+    private void ProcessTouchCoordinate(View v, float x, float y) {
 
-        for(int i = 0; i < TOTAL_BUILDING_COUNT; i++){
-            if(map_buildings[i].IsWithinPixelBounds(x,y)) {
+        for (int i = 0; i < TOTAL_BUILDING_COUNT; i++) {
+            if (map_buildings[i].IsWithinPixelBounds(x, y)) {
                 //Toast.makeText(v.getContext(), map_buildings[i].building_name, Toast.LENGTH_SHORT).show();
                 Intent bldgIntent = new Intent(this, BuildingActivity.class);
-                bldgIntent.putExtra("BUILDING_DETAILS", new String[] {
+                bldgIntent.putExtra("BUILDING_DETAILS", new String[]{
                         map_buildings[i].building_name,
                         map_buildings[i].building_address,
                         map_buildings[i].building_coordinates
                 });
+
+                //NIMMA: test this later with actual provider
+                //Location testloc = ConvertStringToLatLng(map_buildings[i].building_coordinates);
+
                 bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getBuilding_image_resource_name());
                 startActivity(bldgIntent);
+
+
             }
         }
 
+    }
 
+
+    //Geocoordinate methods
+    public Location GetGeoCoordinatesFromTouch(float touched_x, float touched_y) {
+        Location touched_location = new Location("dummyprovider");
+
+        return touched_location;
+    }
+
+    public Location ConvertStringToLatLng(String strCoord) {
+        String[] latlong = strCoord.split(",");
+        double latitude = Double.parseDouble(latlong[0]);
+        double longitude = Double.parseDouble(latlong[1]);
+
+        Location location = new Location("dummyprovider"); //How do we make this an actual location provider?
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
+
+        return location;
+    }
+
+    //For later:
+    public double GetCurrentPixelY(Location upperLeft, Location lowerRight, Location current) {
+        double hypotenuse = upperLeft.distanceTo(current);
+        double bearing = upperLeft.bearingTo(current);
+        double currentDistanceY = Math.cos(bearing * Math.PI / OneEightyDeg) * hypotenuse;
+        //                           "percentage to mark the position"
+        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
+        double totalDistanceY = totalHypotenuse * Math.cos(upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg);
+        double currentPixelY = currentDistanceY / totalDistanceY * ImageSizeH;
+
+        return currentPixelY;
+    }
+
+    public double GetCurrentPixelX(Location upperLeft, Location lowerRight, Location current) {
+        double hypotenuse = upperLeft.distanceTo(current);
+        double bearing = upperLeft.bearingTo(current);
+        double currentDistanceX = Math.sin(bearing * Math.PI / OneEightyDeg) * hypotenuse;
+        //                           "percentage to mark the position"
+        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
+        double totalDistanceX = totalHypotenuse * Math.sin(upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg);
+        double currentPixelX = currentDistanceX / totalDistanceX * ImageSizeW;
+
+        return currentPixelX;
+    }
+
+    private void PlotPin(Context context, float x, float y) {
+        RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
+        MarkerView marker = new MarkerView(context);
+        marker.set_x_y_coord(x, y);
+        map_layout.addView(marker);
     }
 
     private void CenterMapImage() {
@@ -227,19 +276,26 @@ public class MapActivity extends AppCompatActivity {
         mapImageView.setImageMatrix(mapMatrix);
 
 
-
     }
 
-
     private class MarkerView extends View {
+        private float x_coord = 1000, y_coord = 1000;
 
-        public MarkerView(Context context){
+        public MarkerView(Context context) {
             super(context);
         }
+
+        public void set_x_y_coord(float x, float y) {
+            x_coord = x;
+            y_coord = y;
+        }
+
         @Override
         protected void onDraw(Canvas canvas) {
             Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.pin);
-            canvas.drawBitmap(marker, 860, 600, null);
+            canvas.drawBitmap(marker, x_coord, y_coord, null);
         }
-    };
+    }
+
+    ;
 }
