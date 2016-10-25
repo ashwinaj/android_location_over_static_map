@@ -33,11 +33,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-//Geographical coordinates of map:
-// Top left: 37°20'08.9"N 121°53'09.4"W
-// Top right: 37.335798, -121.885934
-// Bottom left: 37.331626, -121.882812
-// Bottom right: 37.334603, -121.876557
 
 public class MapActivity extends AppCompatActivity {
 
@@ -71,6 +66,7 @@ public class MapActivity extends AppCompatActivity {
 
     //Current location
     public static Location locCurrentLocation;
+    public static Location locCurrentHardCodedLocation;
     public static String strCurrentUserLatitude = "";
     public static String strCurrentUserLongitude = "";
     private static final String[] LOCATION_PERMS = {
@@ -78,13 +74,28 @@ public class MapActivity extends AppCompatActivity {
     };
     public static final int REQUEST_CODE = 1337;
     public static final int LOCATION_REQUEST_CODE = REQUEST_CODE;
-    public static final int LOCATION_MIN_TIME = 1000;
+    public static final int LOCATION_MIN_TIME = 60000;
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
     public static String strHardCodedCurrentLocation = "37.334556,-121.880717"; //Somewhere in the middle for testing
 
-    private static LocationManager mLocationManager;
+    //Geographical coordinates of map:
+    // Top left: 37.335802,-121.885910
+    // Top right: 37.335798,-121.885934
+    // Bottom left: 37.331626,-121.882812
+    // Bottom right: 37.334603,-121.876557
+    public static String strMapTopLeftLat = "37.335802";
+    public static String strMapTopLeftLong = "-121.885910";
+    public static String strMapTopRightLat = "37.335798";
+    public static String strMapTopRightLong = "-121.885934";
+    public static String strMapBottomLeftLat = "37.331626";
+    public static String strMapBottomLeftLong = "-121.882812";
+    public static String strMapBottomRightLat = "37.334603";
+    public static String strMapBottomRightLong = "-121.876557";
 
+    public static Location locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight;
+
+    private static LocationManager mLocationManager;
 
     public static final int TOTAL_BUILDING_COUNT = 6;
 
@@ -138,12 +149,19 @@ public class MapActivity extends AppCompatActivity {
     public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
 
 
-    //Setup all activity in constructor
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+
+        //Get latitudes and longitudes of map ready
+        locMapTopLeft = GetLocationFromStrings(strMapTopLeftLat, strMapTopLeftLong);
+        locMapTopRight = GetLocationFromStrings(strMapTopRightLat, strMapTopRightLong);
+        locMapBottomLeft = GetLocationFromStrings(strMapBottomLeftLat, strMapBottomLeftLong);
+        locMapBottomRight = GetLocationFromStrings(strMapBottomRightLat, strMapBottomRightLong);
+        locCurrentHardCodedLocation = ConvertStringToLatLng(strHardCodedCurrentLocation);
 
         //Moving to here because Android complains about constructor
         for (int i = 0; i < TOTAL_BUILDING_COUNT; i++) {
@@ -188,6 +206,18 @@ public class MapActivity extends AppCompatActivity {
         //Test out current location code
         GetCurrentLocation(this);
         Log.d("MainActivity", strCurrentUserLocation);
+
+        float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+
+        PlotPin(this, current_X, current_Y);
+
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus){
+        int width=mapImageView.getWidth();
+        int height=mapImageView.getHeight();
     }
 
     private View.OnTouchListener map_touch_listener = new View.OnTouchListener() {
@@ -236,11 +266,9 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
-    //Geocoordinate methods
-    public Location GetGeoCoordinatesFromTouch(float touched_x, float touched_y) {
-        Location touched_location = new Location("dummyprovider");
-
-        return touched_location;
+    private Location GetLocationFromStrings(String strMapLat, String strMapLong) {
+        Location location = ConvertStringToLatLng(strMapLat + "," + strMapLong);
+        return location;
     }
 
     public Location ConvertStringToLatLng(String strCoord) {
@@ -342,7 +370,7 @@ public class MapActivity extends AppCompatActivity {
             }
             location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-            if(location != null){
+            if (location != null) {
                 strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
                 strCurrentUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
                 strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
@@ -370,34 +398,27 @@ public class MapActivity extends AppCompatActivity {
 
         }
 
-
-
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-
         }
 
         @Override
         public void onProviderEnabled(String provider) {
-
         }
 
         @Override
         public void onProviderDisabled(String provider) {
-
         }
     };
+
     //Now we need to handle it after getting approp permissions:
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        if(requestCode == LOCATION_REQUEST_CODE){
-
+        if (requestCode == LOCATION_REQUEST_CODE) {
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            {
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
                 //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
             }
