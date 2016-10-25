@@ -1,6 +1,8 @@
 package com.nirupama.prasad.mapmysjsu;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +39,7 @@ public class BuildingActivity extends AppCompatActivity {
     public static final String STR_GOOG_API_KEY = "AIzaSyCGNVOTjmPWnsQ2J7rWOJ4SN8AfMF1z_Yg";
     public static final String STR_GOOG_MODE = "&mode=walking";
     public static String STR_BUILDING_COORDS_STREETVIEW = "46.414382,10.013988";
+    public static int requestCodeStreetView = 1333;
 
     TextView building_info_textview;
 
@@ -48,6 +51,9 @@ public class BuildingActivity extends AppCompatActivity {
         //Set up building toolbar
         Toolbar map_toolbar = (Toolbar) findViewById(R.id.map_toolbar);
         setSupportActionBar(map_toolbar);
+        final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
+        upArrow.setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
+        getSupportActionBar().setHomeAsUpIndicator(upArrow);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Set up status bar
@@ -94,9 +100,19 @@ public class BuildingActivity extends AppCompatActivity {
         Uri gmmIntentUri = Uri.parse(strStreetView);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
+        startActivityForResult(mapIntent, requestCodeStreetView);
     }
 
+    //If we don't do this, then hitting back from streetview takes you to the map
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == requestCodeStreetView){
+            if(requestCode == RESULT_OK){
+                //User is back from street view
+            }
+        }
+    }
 
     //Write out AsyncTask to retrieve location distance and time
     private class FetchTimeEstimateTask extends AsyncTask<String, Integer, String> {

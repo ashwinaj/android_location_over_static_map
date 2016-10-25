@@ -28,6 +28,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <data android:scheme="geo" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="com.nirupama.prasad.mapmysjsu.MapActivity" />
             </intent-filter>
         </activity>
     </application>
