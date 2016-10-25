@@ -112,20 +112,21 @@ public class MapActivity extends AppCompatActivity {
 
     public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
 
+
     //Setup all activity in constructor
-    MapActivity() {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_map);
+
+        //Moving to here because Android complains about constructor
         for (int i = 0; i < TOTAL_BUILDING_COUNT; i++) {
             map_buildings[i] = new Building(LOCATIONS[i], coordinates[i]);
             map_buildings[i].setBuilding_address(ADDRESSES[i]);
             map_buildings[i].setBuilding_coordinates(GEOCOORDINATES[i]);
             map_buildings[i].setBuilding_image_resource_name(BUILDING_RESOURCE_NAMES[i]);
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
 
         //Get the image view
         mapImageView = (ImageView) findViewById(R.id.mapImageView);
