@@ -30,6 +30,7 @@ public class BuildingActivity extends AppCompatActivity {
     public static final String STR_GOOG_API_KEY = "AIzaSyCGNVOTjmPWnsQ2J7rWOJ4SN8AfMF1z_Yg";
     public static final String STR_GOOG_MODE = "&mode=walking";
 
+    TextView building_info_textview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +55,13 @@ public class BuildingActivity extends AppCompatActivity {
         String building_map_coordinates = getIntent().getStringExtra("BLDG_MAP_COORDINATES");
 
         //Set up basic info about the building
-        TextView building_info_textview = (TextView) findViewById(R.id.bldg_textView);
+        building_info_textview = (TextView) findViewById(R.id.bldg_textView);
         String str_building_info_joined_string = "";
-        for (String s : building_details) {
-            str_building_info_joined_string = str_building_info_joined_string + "\n\n\n\n" + s;
-        }
+
+        str_building_info_joined_string = "BUILDING: " + building_details[0] + "\n\n";
+        str_building_info_joined_string += "ADDRESS: " + building_details[1] + "\n\n";
+        str_building_info_joined_string += "COORDINATES: " +  building_details[2] + "\n\n";
+
         building_info_textview.setText(str_building_info_joined_string);
 
 
@@ -79,10 +82,10 @@ public class BuildingActivity extends AppCompatActivity {
 
 
     //Write out AsyncTask to retrieve location distance and time
-    private class FetchTimeEstimateTask extends AsyncTask<String, Integer, Long> {
+    private class FetchTimeEstimateTask extends AsyncTask<String, Integer, String> {
 
         @Override
-        protected Long doInBackground(String... args){
+        protected String doInBackground(String... args){
 
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -142,12 +145,16 @@ public class BuildingActivity extends AppCompatActivity {
                 }
             }
 
-            return 0L;//for success
+            return timeEstimateJsonStr;//for success
         }//End of doInBackground
 
-        protected void onPostExecute(Long result) {
+        protected void onPostExecute(String resultJsonString) {
             Log.d("BuildingActivity", "Done executing in the background");
             //Toast.makeText(this, "Downloaded " + result + " bytes");
+
+            String text = building_info_textview.getText().toString();
+            building_info_textview.setText(text + "\n\n" + "TIME: " + resultJsonString);
+
             //return result;
         }
 
