@@ -1,10 +1,13 @@
 package com.nirupama.prasad.mapmysjsu;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -33,6 +36,7 @@ public class BuildingActivity extends AppCompatActivity {
     public static final String STR_GOOG_DEST_URL = "&destinations=";
     public static final String STR_GOOG_API_KEY = "AIzaSyCGNVOTjmPWnsQ2J7rWOJ4SN8AfMF1z_Yg";
     public static final String STR_GOOG_MODE = "&mode=walking";
+    public static String STR_BUILDING_COORDS_STREETVIEW = "46.414382,10.013988";
 
     TextView building_info_textview;
 
@@ -61,10 +65,10 @@ public class BuildingActivity extends AppCompatActivity {
         building_info_textview = (TextView) findViewById(R.id.bldg_textView);
         String str_building_info_joined_string = "";
 
-        str_building_info_joined_string = "BUILDING: \n" + building_details[0] + "\n\n";
+        str_building_info_joined_string = building_details[0].toUpperCase() + "\n\n";
         str_building_info_joined_string += "ADDRESS: \n" + building_details[1] + "\n\n";
         //DEBUG:
-        //str_building_info_joined_string += "COORDINATES: " +  building_details[2] + "\n\n";
+        STR_BUILDING_COORDS_STREETVIEW = building_details[2];
 
         building_info_textview.setText(str_building_info_joined_string);
 
@@ -82,6 +86,15 @@ public class BuildingActivity extends AppCompatActivity {
         //Set up building image
         ImageView buildingImageView = (ImageView) findViewById(R.id.bldg_imageView);
         buildingImageView.setImageResource(building_image_resource_id);
+    }
+
+    //Trigger street view, with the current building coordinates
+    public void btnStreetViewLauncher(View view) {
+        String strStreetView = "google.streetview:cbll=" + STR_BUILDING_COORDS_STREETVIEW;
+        Uri gmmIntentUri = Uri.parse(strStreetView);
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
     }
 
 
@@ -180,7 +193,7 @@ public class BuildingActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            building_info_textview.setText(text + "ESTIMATED TIME FROM CURRENT LOCATION:\n " +  strTimeToTarget + "\n\n" + "DISTANCE TO LOCATION: \n" + strDistanceToTarget);
+            building_info_textview.setText(text + "TIME FROM CURRENT LOCATION: \n" +  strTimeToTarget + "\n\n" + "DISTANCE TO LOCATION: \n" + strDistanceToTarget);
 
             //return result;
         }

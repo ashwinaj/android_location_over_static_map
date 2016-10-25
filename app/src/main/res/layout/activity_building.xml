@@ -32,10 +32,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:srcCompat="@drawable/bbc"
-        android:layout_below="@+id/bldg_textView"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="6dp"
-        android:id="@+id/bldg_imageView" />
+        android:id="@+id/bldg_imageView"
+        android:layout_below="@id/bldg_textView"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/imageView" />
+
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:srcCompat="@drawable/streetview"
+        android:id="@+id/btnStreetView"
+        android:onClick="btnStreetViewLauncher"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>
