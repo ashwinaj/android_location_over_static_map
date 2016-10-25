@@ -267,6 +267,8 @@ public class MapActivity extends AppCompatActivity {
 
 
             }
+            //DEBUG:
+            //PlotPin(this, x - 20, y + 600);
         }
 
     }
@@ -416,7 +418,7 @@ public class MapActivity extends AppCompatActivity {
         }
     };
 
-    //Now we need to handle it after getting approp permissions:
+    //Now we need to handle it after getting appropriate permissions:
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == LOCATION_REQUEST_CODE) {

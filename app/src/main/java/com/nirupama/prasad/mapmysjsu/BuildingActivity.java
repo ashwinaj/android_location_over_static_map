@@ -38,7 +38,7 @@ public class BuildingActivity extends AppCompatActivity {
     public static final String STR_GOOG_DEST_URL = "&destinations=";
     public static final String STR_GOOG_API_KEY = "AIzaSyCGNVOTjmPWnsQ2J7rWOJ4SN8AfMF1z_Yg";
     public static final String STR_GOOG_MODE = "&mode=walking";
-    public static String STR_BUILDING_COORDS_STREETVIEW = "46.414382,10.013988";
+    public static String STR_BUILDING_COORDS_STREETVIEW = "46.414382,10.013988"; //Default to amphiteater
     public static int requestCodeStreetView = 1333;
 
     TextView building_info_textview;
