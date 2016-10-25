@@ -73,12 +73,12 @@ public class MapActivity extends AppCompatActivity {
     public static Location locCurrentLocation;
     public static String strCurrentUserLatitude = "";
     public static String strCurrentUserLongitude = "";
-    private static final String[] LOCATION_PERMS={
+    private static final String[] LOCATION_PERMS = {
             Manifest.permission.ACCESS_FINE_LOCATION
     };
     public static final int REQUEST_CODE = 1337;
     public static final int LOCATION_REQUEST_CODE = REQUEST_CODE;
-    public static final int LOCATION_MIN_TIME = 60000;
+    public static final int LOCATION_MIN_TIME = 1000;
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
     public static String strHardCodedCurrentLocation = "37.334556,-121.880717"; //Somewhere in the middle for testing
@@ -226,7 +226,7 @@ public class MapActivity extends AppCompatActivity {
                 //Location testloc = ConvertStringToLatLng(map_buildings[i].building_coordinates);
 
                 bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getBuilding_image_resource_name());
-                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strHardCodedCurrentLocation);
+                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strCurrentUserLocation);
                 bldgIntent.putExtra("BLDG_MAP_COORDINATES", map_buildings[i].building_coordinates);
                 startActivity(bldgIntent);
 
@@ -327,12 +327,28 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-
     //Start user current location
     @TargetApi(Build.VERSION_CODES.M)
-    public void GetCurrentLocation(Context context){
+    public void GetCurrentLocation(Context context) {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
+        Location location;
+        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        if (isNetworkEnabled) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+            if(location != null){
+                strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
+                strCurrentUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
+                strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
+                return;
+            }
+        }
         requestPermissions(LOCATION_PERMS, LOCATION_REQUEST_CODE); //BUG: fix for all versions of android
     }
 
@@ -349,10 +365,12 @@ public class MapActivity extends AppCompatActivity {
             Log.d("MainActivity", location_string);
 
             //Update current user location and strings
-            strCurrentUserLocation = strCurrentUserLatitude + strCurrentUserLongitude;
+            strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
             locCurrentLocation = location;
 
         }
+
+
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -380,8 +398,8 @@ public class MapActivity extends AppCompatActivity {
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
             {
-                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME,
-                        LOCATION_MIN_DISTANCE, mLocationListener);
+                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
+                //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
             }
 
         }

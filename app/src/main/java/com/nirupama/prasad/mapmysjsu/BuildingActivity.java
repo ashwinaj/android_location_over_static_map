@@ -183,8 +183,6 @@ public class BuildingActivity extends AppCompatActivity {
 
         protected void onPostExecute(String resultJsonString) {
             Log.d("BuildingActivity", "Done executing in the background");
-            //Toast.makeText(this, "Downloaded " + result + " bytes");
-
             String strTimeToTarget = "";
             String strDistanceToTarget = "";
 
@@ -210,8 +208,6 @@ public class BuildingActivity extends AppCompatActivity {
             }
 
             building_info_textview.setText(text + "TIME FROM CURRENT LOCATION: \n" +  strTimeToTarget + "\n\n" + "DISTANCE TO LOCATION: \n" + strDistanceToTarget);
-
-            //return result;
         }
 
     }//End of async task
