@@ -10,6 +10,10 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -152,8 +156,31 @@ public class BuildingActivity extends AppCompatActivity {
             Log.d("BuildingActivity", "Done executing in the background");
             //Toast.makeText(this, "Downloaded " + result + " bytes");
 
+            String strTimeToTarget = "";
+            String strDistanceToTarget = "";
+
             String text = building_info_textview.getText().toString();
-            building_info_textview.setText(text + "\n\n" + "TIME: " + resultJsonString);
+            //Parse json object here
+            try {
+
+                JSONObject jsonObject = new JSONObject(resultJsonString);
+                JSONArray jsonArray = jsonObject.getJSONArray("rows");
+                JSONObject jsonRows =  jsonArray.getJSONObject(0);
+                JSONArray jsonElementArray = jsonRows.getJSONArray("elements");
+                //Get distance
+                JSONObject jsonElementObject = jsonElementArray.getJSONObject(0);
+                JSONObject jsonDistance = jsonElementObject.getJSONObject("distance");
+                strDistanceToTarget = jsonDistance.getString("text");
+                //Get time
+                JSONObject jsonDuration = jsonElementObject.getJSONObject("duration");
+                strTimeToTarget = jsonDuration.getString("text");
+
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            building_info_textview.setText(text + "\n\n" + "Time from current location: " +  strTimeToTarget + "\n\n" + "Distance to location: " + strDistanceToTarget);
 
             //return result;
         }
