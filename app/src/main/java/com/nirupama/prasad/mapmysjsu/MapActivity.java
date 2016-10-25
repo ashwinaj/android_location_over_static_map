@@ -81,7 +81,7 @@ public class MapActivity extends AppCompatActivity {
     public static final int LOCATION_MIN_TIME = 60000;
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
-    public static String strHardCodedCurrentLocation = "37.334556, -121.880717"; //Somewhere in the middle for testing
+    public static String strHardCodedCurrentLocation = "37.334556,-121.880717"; //Somewhere in the middle for testing
 
     private static LocationManager mLocationManager;
 
@@ -98,12 +98,12 @@ public class MapActivity extends AppCompatActivity {
     };
 
     public static final String[] GEOCOORDINATES = new String[]{
-            "37.337359, -121.881909",
-            "37.335716, -121.885213",
-            "37.333492, -121.883756",
-            "37.336361, -121.881282",
-            "37.336530, -121.878717",
-            "37.333385, -121.880264"
+            "37.337359,-121.881909",
+            "37.335716,-121.885213",
+            "37.333492,-121.883756",
+            "37.336361,-121.881282",
+            "37.336530,-121.878717",
+            "37.333385,-121.880264"
     };
 
 
@@ -203,8 +203,6 @@ public class MapActivity extends AppCompatActivity {
 
                 //NIMMA: try plotting
                 //plotPin(v.getContext(), viewX, screenY);
-
-
                 ProcessTouchCoordinate(v, viewX, viewY);
                 return true;
             }
@@ -228,6 +226,8 @@ public class MapActivity extends AppCompatActivity {
                 //Location testloc = ConvertStringToLatLng(map_buildings[i].building_coordinates);
 
                 bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getBuilding_image_resource_name());
+                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strHardCodedCurrentLocation);
+                bldgIntent.putExtra("BLDG_MAP_COORDINATES", map_buildings[i].building_coordinates);
                 startActivity(bldgIntent);
 
 
@@ -235,7 +235,6 @@ public class MapActivity extends AppCompatActivity {
         }
 
     }
-
 
     //Geocoordinate methods
     public Location GetGeoCoordinatesFromTouch(float touched_x, float touched_y) {
@@ -255,7 +254,6 @@ public class MapActivity extends AppCompatActivity {
 
         return location;
     }
-
 
     //For later:
     public double GetCurrentPixelY(Location upperLeft, Location lowerRight, Location current) {
@@ -328,7 +326,7 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    ;
+
 
     //Start user current location
     @TargetApi(Build.VERSION_CODES.M)
