@@ -61,7 +61,8 @@ public class MapActivity extends AppCompatActivity {
 
     //Geolocation statics
     public final static double OneEightyDeg = 180.0d;
-    public static double ImageSizeW, ImageSizeH;
+    public static double ImageSizeW = 1440.0, ImageSizeH = 1944.0;
+    public static double offsetImageViewX = 38.0, offsetImageViewY = 0.0;
 
 
     //Current location
@@ -207,17 +208,21 @@ public class MapActivity extends AppCompatActivity {
         GetCurrentLocation(this);
         Log.d("MainActivity", strCurrentUserLocation);
 
+        //Brave attempt at plotting current location on the map
+        //There are bugs here with plotpin
+        ImageSizeW = ImageSizeW - offsetImageViewX;
+
         float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
         float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-
         PlotPin(this, current_X, current_Y);
 
     }
 
+    //POTENTIAL BUGS
     @Override
     public void onWindowFocusChanged(boolean hasFocus){
-        int width=mapImageView.getWidth();
-        int height=mapImageView.getHeight();
+         ImageSizeW = mapImageView.getWidth();
+         ImageSizeH = mapImageView.getHeight();
     }
 
     private View.OnTouchListener map_touch_listener = new View.OnTouchListener() {
