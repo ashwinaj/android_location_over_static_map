@@ -44,7 +44,6 @@ public class BuildingActivity extends AppCompatActivity {
         //Set up building toolbar
         Toolbar map_toolbar = (Toolbar) findViewById(R.id.map_toolbar);
         setSupportActionBar(map_toolbar);
-        getSupportActionBar().setSubtitle("BUILDING DETAILS");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Set up status bar
@@ -62,9 +61,10 @@ public class BuildingActivity extends AppCompatActivity {
         building_info_textview = (TextView) findViewById(R.id.bldg_textView);
         String str_building_info_joined_string = "";
 
-        str_building_info_joined_string = "BUILDING: " + building_details[0] + "\n\n";
-        str_building_info_joined_string += "ADDRESS: " + building_details[1] + "\n\n";
-        str_building_info_joined_string += "COORDINATES: " +  building_details[2] + "\n\n";
+        str_building_info_joined_string = "BUILDING: \n" + building_details[0] + "\n\n";
+        str_building_info_joined_string += "ADDRESS: \n" + building_details[1] + "\n\n";
+        //DEBUG:
+        //str_building_info_joined_string += "COORDINATES: " +  building_details[2] + "\n\n";
 
         building_info_textview.setText(str_building_info_joined_string);
 
@@ -180,7 +180,7 @@ public class BuildingActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            building_info_textview.setText(text + "\n\n" + "Time from current location: " +  strTimeToTarget + "\n\n" + "Distance to location: " + strDistanceToTarget);
+            building_info_textview.setText(text + "ESTIMATED TIME FROM CURRENT LOCATION:\n " +  strTimeToTarget + "\n\n" + "DISTANCE TO LOCATION: \n" + strDistanceToTarget);
 
             //return result;
         }
