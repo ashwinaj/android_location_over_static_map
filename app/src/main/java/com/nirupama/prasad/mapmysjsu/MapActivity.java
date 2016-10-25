@@ -1,7 +1,10 @@
 package com.nirupama.prasad.mapmysjsu;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,6 +13,11 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -59,6 +67,23 @@ public class MapActivity extends AppCompatActivity {
     //Geolocation statics
     public final static double OneEightyDeg = 180.0d;
     public static double ImageSizeW, ImageSizeH;
+
+
+    //Current location
+    public static Location locCurrentLocation;
+    public static String strCurrentUserLatitude = "";
+    public static String strCurrentUserLongitude = "";
+    private static final String[] LOCATION_PERMS={
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+    public static final int REQUEST_CODE = 1337;
+    public static final int LOCATION_REQUEST_CODE = REQUEST_CODE;
+    public static final int LOCATION_MIN_TIME = 60000;
+    public static final int LOCATION_MIN_DISTANCE = 10;
+    public static String strCurrentUserLocation = "";
+    public static String strHardCodedCurrentLocation = "37.334556, -121.880717"; //Somewhere in the middle for testing
+
+    private static LocationManager mLocationManager;
 
 
     public static final int TOTAL_BUILDING_COUNT = 6;
@@ -159,6 +184,10 @@ public class MapActivity extends AppCompatActivity {
 
         //Start map at the center
         CenterMapImage();
+
+        //Test out current location code
+        GetCurrentLocation(this);
+        Log.d("MainActivity", strCurrentUserLocation);
     }
 
     private View.OnTouchListener map_touch_listener = new View.OnTouchListener() {
@@ -226,6 +255,7 @@ public class MapActivity extends AppCompatActivity {
 
         return location;
     }
+
 
     //For later:
     public double GetCurrentPixelY(Location upperLeft, Location lowerRight, Location current) {
@@ -299,4 +329,64 @@ public class MapActivity extends AppCompatActivity {
     }
 
     ;
+
+    //Start user current location
+    @TargetApi(Build.VERSION_CODES.M)
+    public void GetCurrentLocation(Context context){
+        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+
+        requestPermissions(LOCATION_PERMS, LOCATION_REQUEST_CODE); //BUG: fix for all versions of android
+    }
+
+    //Let's handle user's location now
+    //First off define a listener for location changed events
+    public final LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            strCurrentUserLatitude += location.getLatitude();
+            strCurrentUserLongitude += location.getLongitude();
+
+            //String location_string = "geo:37.7749,-122.4194";
+            String location_string = "geo:" + strCurrentUserLatitude + "," + strCurrentUserLongitude;
+            Log.d("MainActivity", location_string);
+
+            //Update current user location and strings
+            strCurrentUserLocation = strCurrentUserLatitude + strCurrentUserLongitude;
+            locCurrentLocation = location;
+
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    };
+    //Now we need to handle it after getting approp permissions:
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if(requestCode == LOCATION_REQUEST_CODE){
+
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            {
+                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME,
+                        LOCATION_MIN_DISTANCE, mLocationListener);
+            }
+
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
 }
