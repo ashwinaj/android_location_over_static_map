@@ -317,7 +317,7 @@ public class MapActivity extends AppCompatActivity {
                 //Location testloc = ConvertStringToLatLng(map_buildings[i].building_coordinates);
 
                 bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getBuilding_image_resource_name());
-                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strHardCodedCurrentLocation);
+                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strCurrentUserLocation);
                 bldgIntent.putExtra("BLDG_MAP_COORDINATES", map_buildings[i].building_coordinates);
                 startActivity(bldgIntent);
 
