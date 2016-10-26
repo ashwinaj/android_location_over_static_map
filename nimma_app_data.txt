@@ -34,3 +34,31 @@ totalDistanceX = 828.8639465154198
 currentPixelX = 308.6922756020327
 ImageSizeW = 1407.0
 
+
+----------experimented code --------
+GetCurrentPixelY:
+        double hypotenuse = upperLeft.distanceTo(current);
+        double bearing = upperLeft.bearingTo(current);
+
+        double currentDistanceY = 0, currentDistanceYAbs = 0;
+        double BearingTimesPi = bearing * Math.PI;
+        double BearPiDividedBy180 = BearingTimesPi / 180;
+        double precurrentDistanceY = Math.abs(Math.cos (Math.toRadians(bearing)));
+        double precurrentDistanceYAbs = Math.cos(Math.toRadians(BearPiDividedBy180));
+
+        currentDistanceY = precurrentDistanceY * hypotenuse;
+        currentDistanceYAbs = precurrentDistanceYAbs * hypotenuse;
+
+
+        //double currentDistanceY = Math.cos(bearing * Math.PI / OneEightyDeg) * hypotenuse;
+        //                           "percentage to mark the position"
+        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
+        double totalBearing = upperLeft.bearingTo(lowerRight);
+        double totalBearingRadians = Math.toRadians(totalBearing);
+        double cosTotalBearingRadians = Math.abs(Math.cos(totalBearingRadians));
+        double totalDistanceY = totalHypotenuse * cosTotalBearingRadians;
+
+                //Math.cos((upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg));
+        double currentPixelY = currentDistanceY / totalDistanceY * ImageSizeH;
+
+        return currentPixelY;

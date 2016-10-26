@@ -141,7 +141,7 @@ public class MapActivity extends AppCompatActivity {
 
     public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
 
-    public static String strHardCodedCurrentLocation = "37.336787,-121.878546";
+    public static String strHardCodedCurrentLocation = "37.333492,-121.883756";
 
 
     @Override
@@ -229,6 +229,7 @@ public class MapActivity extends AppCompatActivity {
 
         double bearingTLtoTR = locMapTopLeft.bearingTo(locMapTopRight);
         double distanceTLtoTR = locMapTopLeft.distanceTo(locMapTopRight);
+        double bearingTRtoTL = locMapTopRight.bearingTo(locMapTopLeft);
 
         //Get the old points
         float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
@@ -378,26 +379,10 @@ public class MapActivity extends AppCompatActivity {
     public double GetCurrentPixelY(Location upperLeft, Location lowerRight, Location current) {
         double hypotenuse = upperLeft.distanceTo(current);
         double bearing = upperLeft.bearingTo(current);
-
-        double currentDistanceY = 0, currentDistanceYAbs = 0;
-        double BearingTimesPi = bearing * Math.PI;
-        double BearPiDividedBy180 = BearingTimesPi / 180;
-        double precurrentDistanceY = Math.abs(Math.cos (Math.toRadians(bearing)));
-        double precurrentDistanceYAbs = Math.cos(Math.toRadians(BearPiDividedBy180));
-
-        currentDistanceY = precurrentDistanceY * hypotenuse;
-        currentDistanceYAbs = precurrentDistanceYAbs * hypotenuse;
-
-
-        //double currentDistanceY = Math.cos(bearing * Math.PI / OneEightyDeg) * hypotenuse;
+        double currentDistanceY = Math.abs(Math.cos(bearing * Math.PI / OneEightyDeg)) * hypotenuse;
         //                           "percentage to mark the position"
         double totalHypotenuse = upperLeft.distanceTo(lowerRight);
-        double totalBearing = upperLeft.bearingTo(lowerRight);
-        double totalBearingRadians = Math.toRadians(totalBearing);
-        double cosTotalBearingRadians = Math.abs(Math.cos(totalBearingRadians));
-        double totalDistanceY = totalHypotenuse * cosTotalBearingRadians;
-
-                //Math.cos((upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg));
+        double totalDistanceY = totalHypotenuse * Math.abs(Math.cos(upperLeft.bearingTo(lowerRight)) * Math.PI / OneEightyDeg);
         double currentPixelY = currentDistanceY / totalDistanceY * ImageSizeH;
 
         return currentPixelY;
@@ -428,8 +413,8 @@ public class MapActivity extends AppCompatActivity {
 
     private void PlotCircle(Context context, float x, float y) {
         //Normalize incoming pixels
-        x = x + intXAxisPlotOffset;
-        y = y + intYAxisPlotOffset;
+        //x = x + intXAxisPlotOffset;
+        //y = y + intYAxisPlotOffset;
         //x =12; y = 380; //BASE - TOP LEFT
         //y = y + 360;
 
