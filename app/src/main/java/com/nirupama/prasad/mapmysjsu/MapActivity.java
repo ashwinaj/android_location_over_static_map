@@ -141,7 +141,7 @@ public class MapActivity extends AppCompatActivity {
 
     public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
 
-    public static String strHardCodedCurrentLocation = "37.334321,-121.882344";
+    public static String strHardCodedCurrentLocation = "37.336787,-121.878546";
 
 
     @Override
@@ -211,9 +211,9 @@ public class MapActivity extends AppCompatActivity {
         ExecuteCustomExperiments(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentHardCodedLocation);
 
         //Only call after location is retrieved
-        float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        PlotCircle(this, current_X, current_Y);
+        //float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        //float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        //PlotCircle(this, current_X, current_Y);
 
     }
 
@@ -225,7 +225,7 @@ public class MapActivity extends AppCompatActivity {
         //What is the bearing from topleft to topright
 
         double angle = 30.0;
-        double radAngle = Math.toRadians(angle);
+        double r = Math.toRadians(angle);
 
         double bearingTLtoTR = locMapTopLeft.bearingTo(locMapTopRight);
         double distanceTLtoTR = locMapTopLeft.distanceTo(locMapTopRight);
@@ -238,8 +238,8 @@ public class MapActivity extends AppCompatActivity {
         float center_X = 13;
         float center_Y = 445;
 
-        float new_X = (float) (center_X + ((current_X - center_X) * Math.cos(radAngle) - (current_Y - center_Y) * Math.sin(radAngle)));
-        float new_Y = (float) (center_Y + ((current_X - center_X) * Math.sin(radAngle) + (current_Y - center_Y) * Math.sin(radAngle)));
+        float new_X = (float) (center_X + ((current_X - center_X) * Math.cos(r) + (current_Y - center_Y) * Math.sin(r)));
+        float new_Y = (float) (center_Y + ((current_X - center_X) * -1 * (Math.sin(r)) + (current_Y - center_Y) * Math.cos(r)));
 
         PlotCircle(this, new_X, new_Y);
 
