@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -74,10 +75,14 @@ public class MapActivity extends AppCompatActivity {
 
     public static String strMapTopLeftLat = "37.335802";
     public static String strMapTopLeftLong = "-121.885910";
-    public static String strMapTopRightLat = "37.335798";
-    public static String strMapTopRightLong = "-121.885934";
+
+    //37.338877, -121.879668
+    public static String strMapTopRightLat = "37.338877";
+    public static String strMapTopRightLong = "-121.879668";
+
     public static String strMapBottomLeftLat = "37.331626";
     public static String strMapBottomLeftLong = "-121.882812";
+
     public static String strMapBottomRightLat = "37.334603";
     public static String strMapBottomRightLong = "-121.876557";
 
@@ -136,7 +141,7 @@ public class MapActivity extends AppCompatActivity {
 
     public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
 
-    public static String strHardCodedCurrentLocation = "37.335432,-121.879855";
+    public static String strHardCodedCurrentLocation = "37.334321,-121.882344";
 
 
     @Override
@@ -201,15 +206,42 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
-
-
-
     public void updateCurrentUserLocationOnMap(){
+
+        ExecuteCustomExperiments(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentHardCodedLocation);
 
         //Only call after location is retrieved
         float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
         float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
         PlotCircle(this, current_X, current_Y);
+
+    }
+
+    private void ExecuteCustomExperiments(Location locMapTopLeft, Location locMapTopRight,
+                                    Location locMapBottomLeft, Location locMapBottomRight,
+                                    Location locCurrentHardCodedLocation) {
+
+        //Test out different logical things here
+        //What is the bearing from topleft to topright
+
+        double angle = 30.0;
+        double radAngle = Math.toRadians(angle);
+
+        double bearingTLtoTR = locMapTopLeft.bearingTo(locMapTopRight);
+        double distanceTLtoTR = locMapTopLeft.distanceTo(locMapTopRight);
+
+        //Get the old points
+        float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+
+        //Let's rotate this about the top left
+        float center_X = 13;
+        float center_Y = 445;
+
+        float new_X = (float) (center_X + ((current_X - center_X) * Math.cos(radAngle) - (current_Y - center_Y) * Math.sin(radAngle)));
+        float new_Y = (float) (center_Y + ((current_X - center_X) * Math.sin(radAngle) + (current_Y - center_Y) * Math.sin(radAngle)));
+
+        PlotCircle(this, new_X, new_Y);
 
     }
 
@@ -401,8 +433,8 @@ public class MapActivity extends AppCompatActivity {
         //x =12; y = 380; //BASE - TOP LEFT
         //y = y + 360;
 
-        x = x + 25;
-        y = y + 444;
+        //x = x + 25;
+        //y = y + 444;
 
         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
         circlemarker = new CircleMarkerView(context);
@@ -477,14 +509,14 @@ public class MapActivity extends AppCompatActivity {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         Location location;
-        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
         if (isNetworkEnabled) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
             if (location != null) {
                 strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
@@ -540,7 +572,7 @@ public class MapActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
+                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
                 //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
             }
 

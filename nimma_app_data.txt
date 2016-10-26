@@ -1,0 +1,36 @@
+
+imagesizew = 1440.0
+imageSizeH = 1944.0
+
+pixel coords for image alone (relevant portion without legend)
+top left        X: 12.972973    Y: 80.26868     ScreenX: 12.972973      ScreenY:444.26868
+bottom left:    X: 9.72973      Y: 1566.3018    ScreenX: 9.72973        ScreenY:1930.3018
+top right:      X: 1420.5405    Y: 80.26868     ScreenX: 1420.5405      ScreenY:444.26868
+bottom right:   X: 1427.027     Y: 1566.3018    ScreenX: 1427.027       ScreenY:1930.3018
+ 
+new image sizes:
+width = 1407
+height = 1486
+
+
+pixel coords for non image (top before the actual map):
+
+top left: 		X: 9.72973 		Y: -351.2649 	ScreenX: 9.72973 	ScreenY:12.735107
+top right: 		X: 1427.027 	Y: -348.02026 	ScreenX: 1427.027 	ScreenY:15.979736
+bottom left: 	X: 12.972973 	Y: 70.53485 	ScreenX: 12.972973 	ScreenY:434.53485
+bottom right: 	X: 1427.027 	Y: 57.556396 	ScreenX: 1427.027 	ScreenY:421.5564
+
+actual offsets:
+xoffset = 0
+yoffset = 421
+
+
+------debugging-------
+hypotenuse = 297.8080749511719
+bearing = 142.36489868164062
+currentDistanceX = 181.85067364202305
+totalHypotenuse = 839.4713134765625
+totalDistanceX = 828.8639465154198
+currentPixelX = 308.6922756020327
+ImageSizeW = 1407.0
+
