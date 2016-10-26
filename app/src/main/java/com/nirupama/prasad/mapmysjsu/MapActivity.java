@@ -21,6 +21,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -39,10 +41,8 @@ public class MapActivity extends AppCompatActivity {
 
     //Resource handles
     public static AutoCompleteTextView map_search_bar;
-
+    public static MarkerView marker;
     public static int intXAxisPlotOffset = -20, intYAxisPlotOffset = 600;
-
-    //In order to make the map pinch zoomable
     public static ImageView mapImageView;
     public static Matrix mapMatrix = new Matrix();
 
@@ -140,6 +140,8 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        //Intializing
+        marker = new MarkerView(this);
 
         //Get latitudes and longitudes of map ready
         locMapTopLeft = GetLocationFromStrings(strMapTopLeftLat, strMapTopLeftLong);
@@ -193,7 +195,7 @@ public class MapActivity extends AppCompatActivity {
 
         float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
         float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        PlotPin(this, current_X, current_Y);
+        //PlotPin(this, current_X, current_Y);
 
     }
 
@@ -221,14 +223,24 @@ public class MapActivity extends AppCompatActivity {
         if (building_count == -1){
             return;
         }
+        //Check only if user has entered a valid building
+        if(marker != null){
+            RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
+            map_layout.removeView(marker);
+        }
 
         float[] building_pixel_coordinates = map_buildings[building_count].getPixel_coordinates();
 
         float pixelTopRightX = building_pixel_coordinates[2];
         float pixelTopRightY = building_pixel_coordinates[1];
+        float pixelBottomRightY = building_pixel_coordinates[3];
+        float pixelTopLeftX = building_pixel_coordinates[0];
+
+        float plotPixelX = (pixelTopLeftX + pixelTopRightX)/2;
+        float plotPixelY = (pixelTopRightY + pixelBottomRightY)/2;
 
         //Plot it
-        PlotPin(this, pixelTopRightX + intXAxisPlotOffset, pixelTopRightY + intYAxisPlotOffset);
+        PlotPin(this, plotPixelX, plotPixelY);
 
     }
 
@@ -258,6 +270,36 @@ public class MapActivity extends AppCompatActivity {
             return false;
         }
     };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        final AutoCompleteTextView auto_text_view = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
+        auto_text_view.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // TODO Auto-generated method stub
+                Log.d("MapActivity", "after text changed");
+                if(auto_text_view.getText().toString().equals("") || auto_text_view.getText().toString() == null){
+                    if(marker != null){
+                        RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
+                        map_layout.removeView(marker);
+                    }
+                }
+            }
+        });
+    }
 
     private void ProcessTouchCoordinate(View v, float x, float y) {
 
@@ -330,8 +372,12 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void PlotPin(Context context, float x, float y) {
+        //Normalize incoming pixels
+        x = x + intXAxisPlotOffset;
+        y = y + intYAxisPlotOffset;
+
         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
-        MarkerView marker = new MarkerView(context);
+        marker = new MarkerView(context);
         marker.set_x_y_coord(x, y);
         map_layout.addView(marker);
     }
