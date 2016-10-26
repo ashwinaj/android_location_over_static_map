@@ -40,6 +40,7 @@ public class MapActivity extends AppCompatActivity {
     //Resource handles
     public static AutoCompleteTextView map_search_bar;
 
+    public static int intXAxisPlotOffset = -20, intYAxisPlotOffset = 600;
 
     //In order to make the map pinch zoomable
     public static ImageView mapImageView;
@@ -67,11 +68,7 @@ public class MapActivity extends AppCompatActivity {
     public static String strCurrentUserLocation = "";
     public static String strHardCodedCurrentLocation = "37.334556,-121.880717"; //Somewhere in the middle for testing
 
-    //Geographical coordinates of map:
-    // Top left: 37.335802,-121.885910
-    // Top right: 37.335798,-121.885934
-    // Bottom left: 37.331626,-121.882812
-    // Bottom right: 37.334603,-121.876557
+
     public static String strMapTopLeftLat = "37.335802";
     public static String strMapTopLeftLong = "-121.885910";
     public static String strMapTopRightLat = "37.335798";
@@ -183,11 +180,6 @@ public class MapActivity extends AppCompatActivity {
         //Set up touch
         mapImageView.setOnTouchListener(map_touch_listener);
 
-        //Enable/disable touch
-        //mapImageView.setOnTouchListener(this);
-        //Enable or disable scaler
-        //mapScaleGestureDetector = new ScaleGestureDetector(this, new MapScaleListener());
-
         //Start map at the center
         CenterMapImage();
 
@@ -202,6 +194,41 @@ public class MapActivity extends AppCompatActivity {
         float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
         float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
         PlotPin(this, current_X, current_Y);
+
+    }
+
+    //Get text from AutoCompleteTextView
+    //Match to what we know -
+    //Get its coordinates - PlotPin
+    public void btnSearchHandler(View v){
+
+        AutoCompleteTextView auto_text = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
+        String search_text =  auto_text.getText().toString();
+
+        if(search_text.isEmpty() == true || search_text == "" || search_text == null){
+            return;
+        }
+
+        int building_count = -1;
+        search_text = search_text.toLowerCase();
+        for(int i=0; i < LOCATIONS.length; i++){
+            if (search_text.equals(LOCATIONS[i].toLowerCase())){
+                building_count = i;
+                break;
+            }
+        }
+
+        if (building_count == -1){
+            return;
+        }
+
+        float[] building_pixel_coordinates = map_buildings[building_count].getPixel_coordinates();
+
+        float pixelTopRightX = building_pixel_coordinates[2];
+        float pixelTopRightY = building_pixel_coordinates[1];
+
+        //Plot it
+        PlotPin(this, pixelTopRightX + intXAxisPlotOffset, pixelTopRightY + intYAxisPlotOffset);
 
     }
 
@@ -248,14 +275,14 @@ public class MapActivity extends AppCompatActivity {
                 //Location testloc = ConvertStringToLatLng(map_buildings[i].building_coordinates);
 
                 bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getBuilding_image_resource_name());
-                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strCurrentUserLocation);
+                bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strHardCodedCurrentLocation);
                 bldgIntent.putExtra("BLDG_MAP_COORDINATES", map_buildings[i].building_coordinates);
                 startActivity(bldgIntent);
 
 
             }
             //DEBUG:
-            //PlotPin(this, x - 20, y + 600);
+            //PlotPin(this, x + intXAxisPlotOffset, y + intYAxisPlotOffset);
         }
 
     }

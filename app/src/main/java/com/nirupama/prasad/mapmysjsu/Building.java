@@ -5,7 +5,7 @@ public class Building {
 
     public String building_name;
     public String building_address;
-    public String building_coordinates;
+    public String building_coordinates; //Geographic
     public String building_image_name;
     public int building_image_resource_name;
 
