@@ -36,28 +36,15 @@ import android.widget.RelativeLayout;
 
 public class MapActivity extends AppCompatActivity {
 
+
+    //Resource handles
+    public static AutoCompleteTextView map_search_bar;
+
+
     //In order to make the map pinch zoomable
-    ImageView mapImageView;
-    Matrix mapMatrix = new Matrix();
-    float mapInitScale = 1f;
-    ScaleGestureDetector mapScaleGestureDetector;
+    public static ImageView mapImageView;
+    public static Matrix mapMatrix = new Matrix();
 
-
-    // these matrices will be used to move and zoom image
-    private Matrix matrix = new Matrix();
-    private Matrix savedMatrix = new Matrix();
-    // we can be in one of these 3 states
-    private static final int NONE = 0;
-    private static final int DRAG = 1;
-    private static final int ZOOM = 2;
-    private int mode = NONE;
-    // remember some things for zooming
-    private PointF start = new PointF();
-    private PointF mid = new PointF();
-    private float oldDist = 1f;
-    private float d = 0f;
-    private float newRot = 0f;
-    private float[] lastEvent = null;
 
     //Geolocation statics
     public final static double OneEightyDeg = 180.0d;
@@ -176,7 +163,7 @@ public class MapActivity extends AppCompatActivity {
         mapImageView = (ImageView) findViewById(R.id.mapImageView);
 
         //Get the search bar
-        AutoCompleteTextView map_search_bar = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
+        map_search_bar = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
 
         //Set up map toolbar
         Toolbar map_toolbar = (Toolbar) findViewById(R.id.map_toolbar);
