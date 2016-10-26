@@ -193,9 +193,9 @@ public class MapActivity extends AppCompatActivity {
         //There are bugs here with plotpin
         ImageSizeW = ImageSizeW - offsetImageViewX;
 
-        float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        //PlotPin(this, current_X, current_Y);
+        //float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentLocation);
+        //float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentLocation);
+        //PlotPin(this, current_X - intXAxisPlotOffset, current_Y - intYAxisPlotOffset);
 
     }
 
