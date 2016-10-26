@@ -42,6 +42,7 @@ public class MapActivity extends AppCompatActivity {
     //Resource handles
     public static AutoCompleteTextView map_search_bar;
     public static MarkerView marker;
+    public static CircleMarkerView circlemarker;
     public static int intXAxisPlotOffset = -20, intYAxisPlotOffset = 600;
     public static ImageView mapImageView;
     public static Matrix mapMatrix = new Matrix();
@@ -66,7 +67,8 @@ public class MapActivity extends AppCompatActivity {
     public static final int LOCATION_MIN_TIME = 60000;
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
-    public static String strHardCodedCurrentLocation = "37.334556,-121.880717"; //Somewhere in the middle for testing
+    public static String strHardCodedCurrentLocation = "37.334795,-121.881251" ;
+    // working loc: "37.335230,-121.883185"; //Somewhere in the middle for testing
 
 
     public static String strMapTopLeftLat = "37.335802";
@@ -201,9 +203,9 @@ public class MapActivity extends AppCompatActivity {
     public void updateCurrentUserLocationOnMap(){
 
         //Only call after location is retrieved
-        float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentLocation);
-        float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentLocation);
-        PlotPin(this, current_X - intXAxisPlotOffset, current_Y - intYAxisPlotOffset);
+        float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        PlotCircle(this, current_X, current_Y);
 
     }
 
@@ -390,6 +392,18 @@ public class MapActivity extends AppCompatActivity {
         map_layout.addView(marker);
     }
 
+    private void PlotCircle(Context context, float x, float y) {
+        //Normalize incoming pixels
+        x = x + intXAxisPlotOffset;
+        y = y + intYAxisPlotOffset;
+
+        RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
+        circlemarker = new CircleMarkerView(context);
+        circlemarker.set_x_y_coord(x, y);
+        map_layout.addView(circlemarker);
+    }
+
+
     private void CenterMapImage() {
         //Get image dimensions
         Drawable mapDrawable = mapImageView.getDrawable();
@@ -428,6 +442,26 @@ public class MapActivity extends AppCompatActivity {
             canvas.drawBitmap(marker, x_coord, y_coord, null);
         }
     }
+
+    private class CircleMarkerView extends View {
+        private float x_coord = 1000, y_coord = 1000;
+
+        public CircleMarkerView(Context context) {
+            super(context);
+        }
+
+        public void set_x_y_coord(float x, float y) {
+            x_coord = x;
+            y_coord = y;
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.current_small);
+            canvas.drawBitmap(marker, x_coord, y_coord, null);
+        }
+    }
+
 
 
     //Start user current location
