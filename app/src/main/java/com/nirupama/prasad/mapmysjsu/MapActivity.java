@@ -50,7 +50,8 @@ public class MapActivity extends AppCompatActivity {
 
     //Geolocation statics
     public final static double OneEightyDeg = 180.0d;
-    public static double ImageSizeW = 1440.0, ImageSizeH = 1944.0;
+    //public static double ImageSizeW = 1440.0, ImageSizeH = 1944.0;
+    public static double ImageSizeW = 1407, ImageSizeH = 1486.0;
     public static double offsetImageViewX = 38.0, offsetImageViewY = 0.0;
 
 
@@ -67,7 +68,7 @@ public class MapActivity extends AppCompatActivity {
     public static final int LOCATION_MIN_TIME = 60000;
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
-    public static String strHardCodedCurrentLocation = "37.334795,-121.881251" ;
+
     // working loc: "37.335230,-121.883185"; //Somewhere in the middle for testing
 
 
@@ -135,6 +136,7 @@ public class MapActivity extends AppCompatActivity {
 
     public Building[] map_buildings = new Building[TOTAL_BUILDING_COUNT];
 
+    public static String strHardCodedCurrentLocation = "37.335432,-121.879855";
 
 
     @Override
@@ -193,11 +195,13 @@ public class MapActivity extends AppCompatActivity {
 
         //Brave attempt at plotting current location on the map
         //There are bugs here with plotpin
-        ImageSizeW = ImageSizeW - offsetImageViewX;
+        //ImageSizeW = ImageSizeW - offsetImageViewX;
 
 
 
     }
+
+
 
 
     public void updateCurrentUserLocationOnMap(){
@@ -257,29 +261,11 @@ public class MapActivity extends AppCompatActivity {
     //POTENTIAL BUGS
     @Override
     public void onWindowFocusChanged(boolean hasFocus){
-         ImageSizeW = mapImageView.getWidth();
-         ImageSizeH = mapImageView.getHeight();
+         //ImageSizeW = mapImageView.getWidth();
+         //ImageSizeH = mapImageView.getHeight();
     }
 
-    private View.OnTouchListener map_touch_listener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                float screenX = event.getX();
-                float screenY = event.getY();
-                float viewX = screenX - v.getLeft();
-                float viewY = screenY - v.getTop();
 
-                Log.d("MapActivity", "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" + screenY);
-
-                //NIMMA: try plotting
-                //plotPin(v.getContext(), viewX, screenY);
-                ProcessTouchCoordinate(v, viewX, viewY);
-                return true;
-            }
-            return false;
-        }
-    };
 
     @Override
     protected void onResume() {
@@ -360,10 +346,26 @@ public class MapActivity extends AppCompatActivity {
     public double GetCurrentPixelY(Location upperLeft, Location lowerRight, Location current) {
         double hypotenuse = upperLeft.distanceTo(current);
         double bearing = upperLeft.bearingTo(current);
-        double currentDistanceY = Math.cos(bearing * Math.PI / OneEightyDeg) * hypotenuse;
+
+        double currentDistanceY = 0, currentDistanceYAbs = 0;
+        double BearingTimesPi = bearing * Math.PI;
+        double BearPiDividedBy180 = BearingTimesPi / 180;
+        double precurrentDistanceY = Math.abs(Math.cos (Math.toRadians(bearing)));
+        double precurrentDistanceYAbs = Math.cos(Math.toRadians(BearPiDividedBy180));
+
+        currentDistanceY = precurrentDistanceY * hypotenuse;
+        currentDistanceYAbs = precurrentDistanceYAbs * hypotenuse;
+
+
+        //double currentDistanceY = Math.cos(bearing * Math.PI / OneEightyDeg) * hypotenuse;
         //                           "percentage to mark the position"
         double totalHypotenuse = upperLeft.distanceTo(lowerRight);
-        double totalDistanceY = totalHypotenuse * Math.cos(upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg);
+        double totalBearing = upperLeft.bearingTo(lowerRight);
+        double totalBearingRadians = Math.toRadians(totalBearing);
+        double cosTotalBearingRadians = Math.abs(Math.cos(totalBearingRadians));
+        double totalDistanceY = totalHypotenuse * cosTotalBearingRadians;
+
+                //Math.cos((upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg));
         double currentPixelY = currentDistanceY / totalDistanceY * ImageSizeH;
 
         return currentPixelY;
@@ -396,6 +398,11 @@ public class MapActivity extends AppCompatActivity {
         //Normalize incoming pixels
         x = x + intXAxisPlotOffset;
         y = y + intYAxisPlotOffset;
+        //x =12; y = 380; //BASE - TOP LEFT
+        //y = y + 360;
+
+        x = x + 25;
+        y = y + 444;
 
         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
         circlemarker = new CircleMarkerView(context);
@@ -540,4 +547,26 @@ public class MapActivity extends AppCompatActivity {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+    private View.OnTouchListener map_touch_listener =
+            new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                float screenX = event.getX();
+                float screenY = event.getY();
+                float viewX = screenX - v.getLeft();
+                float viewY = screenY - v.getTop();
+
+                Log.d("MapActivity", "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" + screenY);
+
+                //NIMMA: try plotting
+                //plotPin(v.getContext(), viewX, screenY);
+                ProcessTouchCoordinate(v, viewX, viewY);
+                return true;
+            }
+            return false;
+        }
+    };
+
 }
