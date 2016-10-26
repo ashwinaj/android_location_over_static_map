@@ -193,9 +193,17 @@ public class MapActivity extends AppCompatActivity {
         //There are bugs here with plotpin
         ImageSizeW = ImageSizeW - offsetImageViewX;
 
-        //float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentLocation);
-        //float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentLocation);
-        //PlotPin(this, current_X - intXAxisPlotOffset, current_Y - intYAxisPlotOffset);
+
+
+    }
+
+
+    public void updateCurrentUserLocationOnMap(){
+
+        //Only call after location is retrieved
+        float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentLocation);
+        float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentLocation);
+        PlotPin(this, current_X - intXAxisPlotOffset, current_Y - intYAxisPlotOffset);
 
     }
 
@@ -441,6 +449,8 @@ public class MapActivity extends AppCompatActivity {
                 strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
                 strCurrentUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
                 strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
+                locCurrentLocation = location;
+                updateCurrentUserLocationOnMap();
                 return;
             }
         }
@@ -462,6 +472,9 @@ public class MapActivity extends AppCompatActivity {
             //Update current user location and strings
             strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
             locCurrentLocation = location;
+
+            //Call after current location is known
+            updateCurrentUserLocationOnMap();
 
         }
 
