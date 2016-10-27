@@ -66,7 +66,7 @@ public class MapActivity extends AppCompatActivity {
     };
     public static final int REQUEST_CODE = 1337;
     public static final int LOCATION_REQUEST_CODE = REQUEST_CODE;
-    public static final int LOCATION_MIN_TIME = 60000;
+    public static final int LOCATION_MIN_TIME = 5000;
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
 
@@ -332,8 +332,42 @@ public class MapActivity extends AppCompatActivity {
                                      Location locMapBottomLeft, Location locMapBottomRight) {
 
         //Test out hardcoded map locations here
-        //Last test = Clark hall
-        Location locTestLocation = ConvertStringToLatLng("37.336322,-121.882402");
+        //Last test = Clark hall - ACCURATE
+        //Location locTestLocation = ConvertStringToLatLng("37.336322,-121.882402");
+
+        //Music building - ACCURATE
+        //Location locTestLocation = ConvertStringToLatLng("37.335605,-121.880868");
+
+        //Engineering building - ACCURATE
+        //Location locTestLocation = ConvertStringToLatLng("37.336714,-121.881522");
+
+        //Morris auditorium - BIT OFF
+        //Location locTestLocation = ConvertStringToLatLng("37.335289,-121.883142");
+
+        //YUCHIRO hall - WAY OFF
+        //Location locTestLocation = ConvertStringToLatLng("37.333617,-121.883861");
+
+        //West parking garage - BIT OFF
+        //Location locTestLocation = ConvertStringToLatLng("37.332679,-121.883153");
+
+        //Student union - ACCURATE
+        //Location locTestLocation = ConvertStringToLatLng("37.336526,-121.880921");
+
+        //Cooling plant - ACCURATE
+        //Location locTestLocation = ConvertStringToLatLng("37.336193,-121.878475");
+
+        //Campus west - BIT OFF
+        //Location locTestLocation = ConvertStringToLatLng("37.334427,-121.877370");
+
+        //Dining commons - BIT OFF
+        //Location locTestLocation = ConvertStringToLatLng("37.334188, -121.878529");
+
+        //South parking garage
+        //Location locTestLocation = ConvertStringToLatLng("37.333233, -121.880814");
+
+        //Civil building
+        Location locTestLocation = ConvertStringToLatLng("37.337111,-121.881867");
+
         ExecutePlotCurrentUserOnMap(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locTestLocation);
 
     }
