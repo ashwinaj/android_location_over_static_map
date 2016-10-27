@@ -40,6 +40,8 @@ import android.widget.RelativeLayout;
 public class MapActivity extends AppCompatActivity {
 
 
+    public static final double FIXED_PIXEL_DISTANCE = 2.1679;
+    public static final int CURRENT_LOCATION_SCALE_CORRECTER = 700;
     //Resource handles
     public static AutoCompleteTextView map_search_bar;
     public static MarkerView marker;
@@ -51,9 +53,7 @@ public class MapActivity extends AppCompatActivity {
 
     //Geolocation statics
     public final static double OneEightyDeg = 180.0d;
-    //public static double ImageSizeW = 1440.0, ImageSizeH = 1944.0;
     public static double ImageSizeW = 1407, ImageSizeH = 1486.0;
-    public static double offsetImageViewX = 38.0, offsetImageViewY = 0.0;
 
 
     //Current location
@@ -70,12 +70,10 @@ public class MapActivity extends AppCompatActivity {
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
 
-    // working loc: "37.335230,-121.883185"; //Somewhere in the middle for testing
     public static String strMapTopLeft = "37.335802,-121.885910";
     public static String strMapTopRight = "37.338877,-121.879668";
     public static String strMapBottomLeft = "37.331626,-121.882812";
     public static String strMapBottomRight = "37.334603,-121.876557";
-
     public static Location locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight;
 
     private static LocationManager mLocationManager;
@@ -188,54 +186,43 @@ public class MapActivity extends AppCompatActivity {
         GetCurrentLocation(this);
         Log.d("MainActivity", strCurrentUserLocation);
 
-        //Brave attempt at plotting current location on the map
-        //There are bugs here with plotpin
-        //ImageSizeW = ImageSizeW - offsetImageViewX;
-
-        //DEBUG: after output, change to do this from updateCurrentUserLocationOnMap()
-
-        ExecuteCustomExperiments(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentHardCodedLocation);
-   }
-
-    public void updateCurrentUserLocationOnMap(){
-
-        //ExecuteCustomExperiments(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentHardCodedLocation);
-
-        //Only call after location is retrieved
-        //float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        //float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        //PlotCircle(this, current_X, current_Y);
-
+        //DEBUG:
+        TestStaticLocations(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight);
     }
 
+    public void updateCurrentUserLocationOnMap() {
+
+        ExecutePlotCurrentUserOnMap(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentLocation);
+
+    }
 
 
     //Get text from AutoCompleteTextView
     //Match to what we know -
     //Get its coordinates - PlotPin
-    public void btnSearchHandler(View v){
+    public void btnSearchHandler(View v) {
 
         AutoCompleteTextView auto_text = (AutoCompleteTextView) findViewById(R.id.map_search_bar);
-        String search_text =  auto_text.getText().toString();
+        String search_text = auto_text.getText().toString();
 
-        if(search_text.isEmpty() == true || search_text == "" || search_text == null){
+        if (search_text.isEmpty() == true || search_text == "" || search_text == null) {
             return;
         }
 
         int building_count = -1;
         search_text = search_text.toLowerCase();
-        for(int i=0; i < LOCATIONS.length; i++){
-            if (search_text.equals(LOCATIONS[i].toLowerCase())){
+        for (int i = 0; i < LOCATIONS.length; i++) {
+            if (search_text.equals(LOCATIONS[i].toLowerCase())) {
                 building_count = i;
                 break;
             }
         }
 
-        if (building_count == -1){
+        if (building_count == -1) {
             return;
         }
         //Check only if user has entered a valid building
-        if(marker != null){
+        if (marker != null) {
             RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
             map_layout.removeView(marker);
         }
@@ -247,22 +234,13 @@ public class MapActivity extends AppCompatActivity {
         float pixelBottomRightY = building_pixel_coordinates[3];
         float pixelTopLeftX = building_pixel_coordinates[0];
 
-        float plotPixelX = (pixelTopLeftX + pixelTopRightX)/2;
-        float plotPixelY = (pixelTopRightY + pixelBottomRightY)/2;
+        float plotPixelX = (pixelTopLeftX + pixelTopRightX) / 2;
+        float plotPixelY = (pixelTopRightY + pixelBottomRightY) / 2;
 
         //Plot it
         PlotPin(this, plotPixelX, plotPixelY);
 
     }
-
-    //POTENTIAL BUGS
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus){
-         //ImageSizeW = mapImageView.getWidth();
-         //ImageSizeH = mapImageView.getHeight();
-    }
-
-
 
     @Override
     protected void onResume() {
@@ -284,8 +262,8 @@ public class MapActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 // TODO Auto-generated method stub
                 Log.d("MapActivity", "after text changed");
-                if(auto_text_view.getText().toString().equals("") || auto_text_view.getText().toString() == null){
-                    if(marker != null){
+                if (auto_text_view.getText().toString().equals("") || auto_text_view.getText().toString() == null) {
+                    if (marker != null) {
                         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
                         map_layout.removeView(marker);
                     }
@@ -305,9 +283,6 @@ public class MapActivity extends AppCompatActivity {
                         map_buildings[i].building_address,
                         map_buildings[i].building_coordinates
                 });
-
-                //NIMMA: test this later with actual provider
-                //Location testloc = ConvertStringToLatLng(map_buildings[i].building_coordinates);
 
                 bldgIntent.putExtra("BUILDING_IMAGE_NAME", map_buildings[i].getBuilding_image_resource_name());
                 bldgIntent.putExtra("LAST_KNOWN_COORDINATES", strCurrentUserLocation);
@@ -333,53 +308,18 @@ public class MapActivity extends AppCompatActivity {
         double longitude = Double.parseDouble(latlong[1]);
 
         //TRY: Put actual location provider here
-        Location location = new Location("dummyprovider");//How do we make this an actual location provider?
+        Location location = new Location("dummyprovider");
         location.setLatitude(latitude);
         location.setLongitude(longitude);
 
         return location;
     }
 
-    //For later:
-
-
-    public double GetCurrentPixelX(Location upperLeft, Location lowerRight, Location current) {
-        double hypotenuse = upperLeft.distanceTo(current);
-        double bearing = upperLeft.bearingTo(current);
-        double currentDistanceX = Math.sin(bearing * Math.PI / OneEightyDeg) * hypotenuse;
-        //                           "percentage to mark the position"
-        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
-        double totalDistanceX = totalHypotenuse * Math.sin(upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg);
-        double currentPixelX = currentDistanceX / totalDistanceX * ImageSizeW;
-
-        return currentPixelX;
-    }
-
-    public double GetCurrentPixelY(Location upperLeft, Location lowerRight, Location current) {
-        double hypotenuse = upperLeft.distanceTo(current);
-        double bearing = upperLeft.bearingTo(current);
-        double bearingRad = Math.toRadians(bearing);
-        double cosbearingRad = Math.cos(bearingRad);
-        double currentDistanceY = cosbearingRad * hypotenuse;
-
-
-        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
-        double totalBearing = upperLeft.bearingTo(lowerRight);
-        double totalBearRad = Math.toRadians(totalBearing);
-        double cosTotalBearRad = Math.cos(totalBearRad);
-
-        double totalDistanceY = totalHypotenuse * cosTotalBearRad;
-
-        double currentPixelY = Math.abs(currentDistanceY / totalDistanceY) * ImageSizeH;
-
-        return currentPixelY;
-    }
-
 
     private void PlotPin(Context context, float x, float y) {
         //Normalize incoming pixels
-        //x = x + intXAxisPlotOffset;
-        //y = y + intYAxisPlotOffset;
+        x = x + intXAxisPlotOffset;
+        y = y + intYAxisPlotOffset;
 
         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
         marker = new MarkerView(context);
@@ -388,15 +328,22 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-    private void ExecuteCustomExperiments(Location locMapTopLeft, Location locMapTopRight,
-                                          Location locMapBottomLeft, Location locMapBottomRight,
-                                          Location locCurrentHardCodedLocation) {
+    private void TestStaticLocations(Location locMapTopLeft, Location locMapTopRight,
+                                     Location locMapBottomLeft, Location locMapBottomRight) {
 
-        //Test out different logical things here
-        //What is the bearing from topleft to topright
+        //Test out hardcoded map locations here
+        //Last test = Clark hall
+        Location locTestLocation = ConvertStringToLatLng("37.336322,-121.882402");
+        ExecutePlotCurrentUserOnMap(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locTestLocation);
 
-        locCurrentHardCodedLocation = ConvertStringToLatLng("37.333385,-121.880264");
+    }
 
+
+    private void ExecutePlotCurrentUserOnMap(Location locMapTopLeft, Location locMapTopRight,
+                                             Location locMapBottomLeft, Location locMapBottomRight,
+                                             Location locCurrentUserLocation) {
+
+        //This is the angle the earth is tilted by - and the map is tilted by, in accordance with the static image
         double angle = 10.0;
         double r = Math.toRadians(angle);
 
@@ -405,20 +352,20 @@ public class MapActivity extends AppCompatActivity {
         double bearingTRtoTL = locMapTopRight.bearingTo(locMapTopLeft);
 
 
-        double bearingTLtoCL = locMapTopLeft.bearingTo(locCurrentHardCodedLocation);
+        double bearingTLtoCL = locMapTopLeft.bearingTo(locCurrentUserLocation);
         double diffAngle = (bearingTLtoCL - bearingTLtoTR);
 
-        double hypot_current_loc = locMapTopLeft.distanceTo(locCurrentHardCodedLocation);
+        double hypot_current_loc = locMapTopLeft.distanceTo(locCurrentUserLocation);
         double current_x_dist = hypot_current_loc * Math.cos(Math.toRadians(diffAngle));
         double current_y_dist = hypot_current_loc * Math.sin(Math.toRadians(diffAngle));
 
 
-        double current_x_pixels = 2.1679 * current_x_dist;
-        double current_y_pixels = 2.1679 * current_y_dist;
+        double current_x_pixels = FIXED_PIXEL_DISTANCE * current_x_dist;
+        double current_y_pixels = FIXED_PIXEL_DISTANCE * current_y_dist;
 
-        //Get the old points
-        float current_X = (float) current_x_pixels; //(float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        float current_Y = (float) current_y_pixels; //(float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        //Get the old points floated out
+        float current_X = (float) current_x_pixels;
+        float current_Y = (float) current_y_pixels;
 
         ////Let's rotate this about the top left
         float center_X = 13;
@@ -428,22 +375,20 @@ public class MapActivity extends AppCompatActivity {
         float new_Y = (float) (center_Y + ((current_X - center_X) * -1 * (Math.sin(r)) + (current_Y - center_Y) * Math.cos(r)));
 
         PlotCircle(this, new_X, new_Y);
-        PlotPin(this, current_X, current_Y);
-
 
     }
 
     private void PlotCircle(Context context, float x, float y) {
         //Normalize incoming pixels
         x = x + intXAxisPlotOffset;
-        y = y + intYAxisPlotOffset + 700;
-        //x =12; y = 380; //BASE - TOP LEFT
-        //y = y + 360;
-
-        //x = x + 25;
-        //y = y + 444;
+        y = y + intYAxisPlotOffset + CURRENT_LOCATION_SCALE_CORRECTER;
 
         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
+
+        if (circlemarker != null) {
+            map_layout.removeView(circlemarker);
+        }
+
         circlemarker = new CircleMarkerView(context);
         circlemarker.set_x_y_coord(x, y);
         map_layout.addView(circlemarker);
@@ -509,7 +454,6 @@ public class MapActivity extends AppCompatActivity {
     }
 
 
-
     //Start user current location
     @TargetApi(Build.VERSION_CODES.M)
     public void GetCurrentLocation(Context context) {
@@ -534,7 +478,8 @@ public class MapActivity extends AppCompatActivity {
                 return;
             }
         }
-        requestPermissions(LOCATION_PERMS, LOCATION_REQUEST_CODE); //BUG: fix for all versions of android
+        //BUG: fix for all versions of android
+        requestPermissions(LOCATION_PERMS, LOCATION_REQUEST_CODE);
     }
 
     //Let's handle user's location now
@@ -553,7 +498,7 @@ public class MapActivity extends AppCompatActivity {
             strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
             locCurrentLocation = location;
 
-            //Call after current location is known
+            //Call after current location is known to continuously plot user on map
             updateCurrentUserLocationOnMap();
 
         }
@@ -580,6 +525,7 @@ public class MapActivity extends AppCompatActivity {
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
+                //DEBUG:
                 //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
             }
 
@@ -589,48 +535,24 @@ public class MapActivity extends AppCompatActivity {
 
     private View.OnTouchListener map_touch_listener =
             new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                float screenX = event.getX();
-                float screenY = event.getY();
-                float viewX = screenX - v.getLeft();
-                float viewY = screenY - v.getTop();
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        float screenX = event.getX();
+                        float screenY = event.getY();
+                        float viewX = screenX - v.getLeft();
+                        float viewY = screenY - v.getTop();
 
-                Log.d("MapActivity", "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" + screenY);
+                        Log.d("MapActivity", "X: " + viewX + " Y: " + viewY + " ScreenX: " + screenX + " ScreenY:" + screenY);
 
-                //NIMMA: try plotting
-                //plotPin(v.getContext(), viewX, screenY);
-                ProcessTouchCoordinate(v, viewX, viewY);
-                return true;
-            }
-            return false;
-        }
-    };
+                        //DEBUG:
+                        //plotPin(v.getContext(), viewX, viewY);
+                        ProcessTouchCoordinate(v, viewX, viewY);
+                        return true;
+                    }
+                    return false;
+                }
+            };
 
-    //For later:
-    public double GetCurrentPixelYOld(Location upperLeft, Location lowerRight, Location current) {
-        double hypotenuse = upperLeft.distanceTo(current);
-        double bearing = upperLeft.bearingTo(current);
-        double currentDistanceY = Math.abs(Math.cos(bearing * Math.PI / OneEightyDeg)) * hypotenuse;
-        //                           "percentage to mark the position"
-        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
-        double totalDistanceY = totalHypotenuse * Math.abs(Math.cos(upperLeft.bearingTo(lowerRight)) * Math.PI / OneEightyDeg);
-        double currentPixelY = currentDistanceY / totalDistanceY * ImageSizeH;
-
-        return currentPixelY;
-    }
-
-    public double GetCurrentPixelXOld(Location upperLeft, Location lowerRight, Location current) {
-        double hypotenuse = upperLeft.distanceTo(current);
-        double bearing = upperLeft.bearingTo(current);
-        double currentDistanceX = Math.sin(bearing * Math.PI / OneEightyDeg) * hypotenuse;
-        //                           "percentage to mark the position"
-        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
-        double totalDistanceX = totalHypotenuse * Math.sin(upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg);
-        double currentPixelX = currentDistanceX / totalDistanceX * ImageSizeW;
-
-        return currentPixelX;
-    }
-
+    //End of class
 }
