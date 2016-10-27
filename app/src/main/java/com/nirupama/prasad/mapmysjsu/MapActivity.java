@@ -66,7 +66,7 @@ public class MapActivity extends AppCompatActivity {
     };
     public static final int REQUEST_CODE = 1337;
     public static final int LOCATION_REQUEST_CODE = REQUEST_CODE;
-    public static final int LOCATION_MIN_TIME = 5000;
+    public static final int LOCATION_MIN_TIME = 1000;
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
 
@@ -187,7 +187,7 @@ public class MapActivity extends AppCompatActivity {
         Log.d("MainActivity", strCurrentUserLocation);
 
         //DEBUG:
-        TestStaticLocations(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight);
+        //TestStaticLocations(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight);
     }
 
     public void updateCurrentUserLocationOnMap() {
@@ -261,7 +261,7 @@ public class MapActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 // TODO Auto-generated method stub
-                Log.d("MapActivity", "after text changed");
+                //Log.d("MapActivity", "after text changed");
                 if (auto_text_view.getText().toString().equals("") || auto_text_view.getText().toString() == null) {
                     if (marker != null) {
                         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
@@ -363,10 +363,10 @@ public class MapActivity extends AppCompatActivity {
         //Location locTestLocation = ConvertStringToLatLng("37.334188, -121.878529");
 
         //South parking garage
-        //Location locTestLocation = ConvertStringToLatLng("37.333233, -121.880814");
+        Location locTestLocation = ConvertStringToLatLng("37.333233, -121.880814");
 
-        //Civil building
-        Location locTestLocation = ConvertStringToLatLng("37.337111,-121.881867");
+        //MLK building
+        //Location locTestLocation = ConvertStringToLatLng("37.335724,-121.884934");
 
         ExecutePlotCurrentUserOnMap(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locTestLocation);
 
@@ -494,21 +494,22 @@ public class MapActivity extends AppCompatActivity {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         Location location;
-        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
         if (isNetworkEnabled) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
             if (location != null) {
                 strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
                 strCurrentUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
                 strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
                 locCurrentLocation = location;
-                updateCurrentUserLocationOnMap();
+                Log.d("MainActivity", "Location of user is currently: " + strCurrentUserLocation);
+                updateCurrentUserLocationOnMap(); //when app starts up
                 return;
             }
         }
@@ -526,14 +527,14 @@ public class MapActivity extends AppCompatActivity {
 
             //String location_string = "geo:37.7749,-122.4194";
             String location_string = "geo:" + strCurrentUserLatitude + "," + strCurrentUserLongitude;
-            Log.d("MainActivity", location_string);
+            Log.d("MainActivity", "Location changed: "+ location_string);
 
             //Update current user location and strings
             strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
             locCurrentLocation = location;
 
             //Call after current location is known to continuously plot user on map
-            updateCurrentUserLocationOnMap();
+            updateCurrentUserLocationOnMap(); //When users location changes (once every minute?)
 
         }
 
@@ -558,7 +559,7 @@ public class MapActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
+                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
                 //DEBUG:
                 //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
             }
