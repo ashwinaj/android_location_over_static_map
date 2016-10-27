@@ -25,6 +25,29 @@ xoffset = 0
 yoffset = 421
 
 
+
+MAP DATA DUMP:
+angle = 60.0
+r = 1.0471975511965976
+bearingTLtoTR = 58.32470703125
+distanceTLtoTR = 649.9541625976562
+bearingTRtoTL = -121.67151641845703
+current_X = 696.18774
+current_Y = 693.13116
+center_X = 13.0
+center_Y = 445.0
+new_X = 569.48175
+new_Y = -22.59236
+
+map distance from top left to top right - 649.95
+phone pixels from top left to top right - 1407
+
+therefore - 1 pixel = 0.461 meters
+and 1 meter = 2.1679 pixels
+
+also we know that the angle from top left's true north, westward to top right is 60.
+that means, the angle between map orientation and image orientation is 30. The image turns the map by 30 degrees downwards 
+
 ------debugging-------
 hypotenuse = 297.8080749511719
 bearing = 142.36489868164062

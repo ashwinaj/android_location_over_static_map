@@ -71,20 +71,10 @@ public class MapActivity extends AppCompatActivity {
     public static String strCurrentUserLocation = "";
 
     // working loc: "37.335230,-121.883185"; //Somewhere in the middle for testing
-
-
-    public static String strMapTopLeftLat = "37.335802";
-    public static String strMapTopLeftLong = "-121.885910";
-
-    //37.338877, -121.879668
-    public static String strMapTopRightLat = "37.338877";
-    public static String strMapTopRightLong = "-121.879668";
-
-    public static String strMapBottomLeftLat = "37.331626";
-    public static String strMapBottomLeftLong = "-121.882812";
-
-    public static String strMapBottomRightLat = "37.334603";
-    public static String strMapBottomRightLong = "-121.876557";
+    public static String strMapTopLeft = "37.335802,-121.885910";
+    public static String strMapTopRight = "37.338877,-121.879668";
+    public static String strMapBottomLeft = "37.331626,-121.882812";
+    public static String strMapBottomRight = "37.334603,-121.876557";
 
     public static Location locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight;
 
@@ -153,10 +143,10 @@ public class MapActivity extends AppCompatActivity {
         marker = new MarkerView(this);
 
         //Get latitudes and longitudes of map ready
-        locMapTopLeft = GetLocationFromStrings(strMapTopLeftLat, strMapTopLeftLong);
-        locMapTopRight = GetLocationFromStrings(strMapTopRightLat, strMapTopRightLong);
-        locMapBottomLeft = GetLocationFromStrings(strMapBottomLeftLat, strMapBottomLeftLong);
-        locMapBottomRight = GetLocationFromStrings(strMapBottomRightLat, strMapBottomRightLong);
+        locMapTopLeft = GetLocationFromStrings(strMapTopLeft);
+        locMapTopRight = GetLocationFromStrings(strMapTopRight);
+        locMapBottomLeft = GetLocationFromStrings(strMapBottomLeft);
+        locMapBottomRight = GetLocationFromStrings(strMapBottomRight);
         locCurrentHardCodedLocation = ConvertStringToLatLng(strHardCodedCurrentLocation);
 
         //Moving to here because Android complains about constructor
@@ -202,13 +192,14 @@ public class MapActivity extends AppCompatActivity {
         //There are bugs here with plotpin
         //ImageSizeW = ImageSizeW - offsetImageViewX;
 
+        //DEBUG: after output, change to do this from updateCurrentUserLocationOnMap()
 
-
-    }
+        ExecuteCustomExperiments(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentHardCodedLocation);
+   }
 
     public void updateCurrentUserLocationOnMap(){
 
-        ExecuteCustomExperiments(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        //ExecuteCustomExperiments(locMapTopLeft, locMapTopRight, locMapBottomLeft, locMapBottomRight, locCurrentHardCodedLocation);
 
         //Only call after location is retrieved
         //float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
@@ -217,34 +208,7 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
-    private void ExecuteCustomExperiments(Location locMapTopLeft, Location locMapTopRight,
-                                    Location locMapBottomLeft, Location locMapBottomRight,
-                                    Location locCurrentHardCodedLocation) {
 
-        //Test out different logical things here
-        //What is the bearing from topleft to topright
-
-        double angle = 30.0;
-        double r = Math.toRadians(angle);
-
-        double bearingTLtoTR = locMapTopLeft.bearingTo(locMapTopRight);
-        double distanceTLtoTR = locMapTopLeft.distanceTo(locMapTopRight);
-        double bearingTRtoTL = locMapTopRight.bearingTo(locMapTopLeft);
-
-        //Get the old points
-        float current_X = (float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-        float current_Y = (float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
-
-        //Let's rotate this about the top left
-        float center_X = 13;
-        float center_Y = 445;
-
-        float new_X = (float) (center_X + ((current_X - center_X) * Math.cos(r) + (current_Y - center_Y) * Math.sin(r)));
-        float new_Y = (float) (center_Y + ((current_X - center_X) * -1 * (Math.sin(r)) + (current_Y - center_Y) * Math.cos(r)));
-
-        PlotCircle(this, new_X, new_Y);
-
-    }
 
     //Get text from AutoCompleteTextView
     //Match to what we know -
@@ -358,8 +322,8 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
-    private Location GetLocationFromStrings(String strMapLat, String strMapLong) {
-        Location location = ConvertStringToLatLng(strMapLat + "," + strMapLong);
+    private Location GetLocationFromStrings(String strMap) {
+        Location location = ConvertStringToLatLng(strMap);
         return location;
     }
 
@@ -368,7 +332,8 @@ public class MapActivity extends AppCompatActivity {
         double latitude = Double.parseDouble(latlong[0]);
         double longitude = Double.parseDouble(latlong[1]);
 
-        Location location = new Location("dummyprovider"); //How do we make this an actual location provider?
+        //TRY: Put actual location provider here
+        Location location = new Location("dummyprovider");//How do we make this an actual location provider?
         location.setLatitude(latitude);
         location.setLongitude(longitude);
 
@@ -376,17 +341,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
     //For later:
-    public double GetCurrentPixelY(Location upperLeft, Location lowerRight, Location current) {
-        double hypotenuse = upperLeft.distanceTo(current);
-        double bearing = upperLeft.bearingTo(current);
-        double currentDistanceY = Math.abs(Math.cos(bearing * Math.PI / OneEightyDeg)) * hypotenuse;
-        //                           "percentage to mark the position"
-        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
-        double totalDistanceY = totalHypotenuse * Math.abs(Math.cos(upperLeft.bearingTo(lowerRight)) * Math.PI / OneEightyDeg);
-        double currentPixelY = currentDistanceY / totalDistanceY * ImageSizeH;
 
-        return currentPixelY;
-    }
 
     public double GetCurrentPixelX(Location upperLeft, Location lowerRight, Location current) {
         double hypotenuse = upperLeft.distanceTo(current);
@@ -400,10 +355,31 @@ public class MapActivity extends AppCompatActivity {
         return currentPixelX;
     }
 
+    public double GetCurrentPixelY(Location upperLeft, Location lowerRight, Location current) {
+        double hypotenuse = upperLeft.distanceTo(current);
+        double bearing = upperLeft.bearingTo(current);
+        double bearingRad = Math.toRadians(bearing);
+        double cosbearingRad = Math.cos(bearingRad);
+        double currentDistanceY = cosbearingRad * hypotenuse;
+
+
+        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
+        double totalBearing = upperLeft.bearingTo(lowerRight);
+        double totalBearRad = Math.toRadians(totalBearing);
+        double cosTotalBearRad = Math.cos(totalBearRad);
+
+        double totalDistanceY = totalHypotenuse * cosTotalBearRad;
+
+        double currentPixelY = Math.abs(currentDistanceY / totalDistanceY) * ImageSizeH;
+
+        return currentPixelY;
+    }
+
+
     private void PlotPin(Context context, float x, float y) {
         //Normalize incoming pixels
-        x = x + intXAxisPlotOffset;
-        y = y + intYAxisPlotOffset;
+        //x = x + intXAxisPlotOffset;
+        //y = y + intYAxisPlotOffset;
 
         RelativeLayout map_layout = (RelativeLayout) findViewById(R.id.activity_map);
         marker = new MarkerView(context);
@@ -411,10 +387,56 @@ public class MapActivity extends AppCompatActivity {
         map_layout.addView(marker);
     }
 
+
+    private void ExecuteCustomExperiments(Location locMapTopLeft, Location locMapTopRight,
+                                          Location locMapBottomLeft, Location locMapBottomRight,
+                                          Location locCurrentHardCodedLocation) {
+
+        //Test out different logical things here
+        //What is the bearing from topleft to topright
+
+        locCurrentHardCodedLocation = ConvertStringToLatLng("37.333385,-121.880264");
+
+        double angle = 10.0;
+        double r = Math.toRadians(angle);
+
+        double bearingTLtoTR = locMapTopLeft.bearingTo(locMapTopRight);
+        double distanceTLtoTR = locMapTopLeft.distanceTo(locMapTopRight);
+        double bearingTRtoTL = locMapTopRight.bearingTo(locMapTopLeft);
+
+
+        double bearingTLtoCL = locMapTopLeft.bearingTo(locCurrentHardCodedLocation);
+        double diffAngle = (bearingTLtoCL - bearingTLtoTR);
+
+        double hypot_current_loc = locMapTopLeft.distanceTo(locCurrentHardCodedLocation);
+        double current_x_dist = hypot_current_loc * Math.cos(Math.toRadians(diffAngle));
+        double current_y_dist = hypot_current_loc * Math.sin(Math.toRadians(diffAngle));
+
+
+        double current_x_pixels = 2.1679 * current_x_dist;
+        double current_y_pixels = 2.1679 * current_y_dist;
+
+        //Get the old points
+        float current_X = (float) current_x_pixels; //(float) GetCurrentPixelX(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+        float current_Y = (float) current_y_pixels; //(float) GetCurrentPixelY(locMapTopLeft, locMapBottomRight, locCurrentHardCodedLocation);
+
+        ////Let's rotate this about the top left
+        float center_X = 13;
+        float center_Y = 445;
+
+        float new_X = (float) (center_X + ((current_X - center_X) * Math.cos(r) + (current_Y - center_Y) * Math.sin(r)));
+        float new_Y = (float) (center_Y + ((current_X - center_X) * -1 * (Math.sin(r)) + (current_Y - center_Y) * Math.cos(r)));
+
+        PlotCircle(this, new_X, new_Y);
+        PlotPin(this, current_X, current_Y);
+
+
+    }
+
     private void PlotCircle(Context context, float x, float y) {
         //Normalize incoming pixels
-        //x = x + intXAxisPlotOffset;
-        //y = y + intYAxisPlotOffset;
+        x = x + intXAxisPlotOffset;
+        y = y + intYAxisPlotOffset + 700;
         //x =12; y = 380; //BASE - TOP LEFT
         //y = y + 360;
 
@@ -585,5 +607,30 @@ public class MapActivity extends AppCompatActivity {
             return false;
         }
     };
+
+    //For later:
+    public double GetCurrentPixelYOld(Location upperLeft, Location lowerRight, Location current) {
+        double hypotenuse = upperLeft.distanceTo(current);
+        double bearing = upperLeft.bearingTo(current);
+        double currentDistanceY = Math.abs(Math.cos(bearing * Math.PI / OneEightyDeg)) * hypotenuse;
+        //                           "percentage to mark the position"
+        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
+        double totalDistanceY = totalHypotenuse * Math.abs(Math.cos(upperLeft.bearingTo(lowerRight)) * Math.PI / OneEightyDeg);
+        double currentPixelY = currentDistanceY / totalDistanceY * ImageSizeH;
+
+        return currentPixelY;
+    }
+
+    public double GetCurrentPixelXOld(Location upperLeft, Location lowerRight, Location current) {
+        double hypotenuse = upperLeft.distanceTo(current);
+        double bearing = upperLeft.bearingTo(current);
+        double currentDistanceX = Math.sin(bearing * Math.PI / OneEightyDeg) * hypotenuse;
+        //                           "percentage to mark the position"
+        double totalHypotenuse = upperLeft.distanceTo(lowerRight);
+        double totalDistanceX = totalHypotenuse * Math.sin(upperLeft.bearingTo(lowerRight) * Math.PI / OneEightyDeg);
+        double currentPixelX = currentDistanceX / totalDistanceX * ImageSizeW;
+
+        return currentPixelX;
+    }
 
 }
