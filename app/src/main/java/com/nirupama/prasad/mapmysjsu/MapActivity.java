@@ -39,6 +39,8 @@ import android.widget.RelativeLayout;
 
 public class MapActivity extends AppCompatActivity {
 
+    public static final String LocationProviderString = LocationManager.NETWORK_PROVIDER;
+
 
     public static final double FIXED_PIXEL_DISTANCE = 2.1679;
     public static final int CURRENT_LOCATION_SCALE_CORRECTER = 700;
@@ -66,7 +68,7 @@ public class MapActivity extends AppCompatActivity {
     };
     public static final int REQUEST_CODE = 1337;
     public static final int LOCATION_REQUEST_CODE = REQUEST_CODE;
-    public static final int LOCATION_MIN_TIME = 1000;
+    public static final int LOCATION_MIN_TIME = 30000;
     public static final int LOCATION_MIN_DISTANCE = 10;
     public static String strCurrentUserLocation = "";
 
@@ -494,14 +496,16 @@ public class MapActivity extends AppCompatActivity {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         Location location;
-        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean isNetworkEnabled = mLocationManager.isProviderEnabled(LocationProviderString);
 
         if (isNetworkEnabled) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            location = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            location = mLocationManager.getLastKnownLocation(LocationProviderString);
+
+            mLocationManager.requestLocationUpdates(LocationProviderString, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
 
             if (location != null) {
                 strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
@@ -559,7 +563,7 @@ public class MapActivity extends AppCompatActivity {
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
+                mLocationManager.requestLocationUpdates(LocationProviderString, LOCATION_MIN_TIME, LOCATION_MIN_DISTANCE, mLocationListener);
                 //DEBUG:
                 //mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, mLocationListener, null);
             }
