@@ -526,8 +526,11 @@ public class MapActivity extends AppCompatActivity {
     public final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(final Location location) {
-            strCurrentUserLatitude += location.getLatitude();
-            strCurrentUserLongitude += location.getLongitude();
+
+            strCurrentUserLatitude = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES);
+            strCurrentUserLongitude = Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
+            strCurrentUserLocation = strCurrentUserLatitude + "," + strCurrentUserLongitude;
+
 
             //String location_string = "geo:37.7749,-122.4194";
             String location_string = "geo:" + strCurrentUserLatitude + "," + strCurrentUserLongitude;
